@@ -21,4 +21,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fallbackBody =>
       'I build production Flutter apps and I am open to remote roles. This page needs JavaScript to load; you can reach me at lschmidt.dev@gmail.com.';
+
+  @override
+  String get navMainLabel => 'Main';
+
+  @override
+  String get navWork => 'Work';
+
+  @override
+  String get navExperience => 'Experience';
+
+  @override
+  String get navSkills => 'Skills';
+
+  @override
+  String get navContact => 'Contact';
+
+  @override
+  String get languageGroupLabel => 'Language';
+
+  @override
+  String get languageEnglishLabel => 'English';
+
+  @override
+  String get languagePortugueseLabel => 'Português';
+
+  @override
+  String get themeToggleLabel => 'Toggle light or dark theme';
+
+  @override
+  String get heroDownloadCv => 'Download CV (PDF)';
+
+  @override
+  String get heroEmailMe => 'Email me';
+
+  @override
+  String get currentlyTitle => 'Currently';
+
+  @override
+  String get currentlyAvailable => 'Available';
 }

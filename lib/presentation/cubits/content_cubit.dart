@@ -40,12 +40,13 @@ class ContentCubit extends Cubit<ContentState> {
 
   Future<void> load(AppLocale locale) async {
     _requested = locale;
-    emit(const ContentLoading());
     try {
       final content = await _repository.load(locale);
       if (_requested == locale && !isClosed) emit(ContentReady(content));
     } on Object {
-      if (_requested == locale && !isClosed) emit(const ContentError());
+      if (_requested == locale && !isClosed && state is! ContentReady) {
+        emit(const ContentError());
+      }
     }
   }
 

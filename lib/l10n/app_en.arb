@@ -15,5 +15,31 @@
   "fallbackBody": "I build production Flutter apps and I am open to remote roles. This page needs JavaScript to load; you can reach me at lschmidt.dev@gmail.com.",
   "@fallbackBody": {
     "description": "Text of the no-JavaScript fallback, includes the email address"
-  }
+  },
+  "navMainLabel": "Main",
+  "@navMainLabel": { "description": "Accessible name of the main navigation landmark" },
+  "navWork": "Work",
+  "@navWork": { "description": "Header link to the Selected work section" },
+  "navExperience": "Experience",
+  "@navExperience": { "description": "Header link to the Experience section" },
+  "navSkills": "Skills",
+  "@navSkills": { "description": "Header link to the Skills section" },
+  "navContact": "Contact",
+  "@navContact": { "description": "Header link to the Contact section" },
+  "languageGroupLabel": "Language",
+  "@languageGroupLabel": { "description": "Accessible name of the EN/PT switch" },
+  "languageEnglishLabel": "English",
+  "@languageEnglishLabel": { "description": "Accessible name of the EN button" },
+  "languagePortugueseLabel": "Português",
+  "@languagePortugueseLabel": { "description": "Accessible name of the PT button" },
+  "themeToggleLabel": "Toggle light or dark theme",
+  "@themeToggleLabel": { "description": "Accessible name of the icon-only theme button" },
+  "heroDownloadCv": "Download CV (PDF)",
+  "@heroDownloadCv": { "description": "Hero primary button, links to the PDF" },
+  "heroEmailMe": "Email me",
+  "@heroEmailMe": { "description": "Hero ghost button, scrolls to the Contact section" },
+  "currentlyTitle": "Currently",
+  "@currentlyTitle": { "description": "Title of the Currently card" },
+  "currentlyAvailable": "Available",
+  "@currentlyAvailable": { "description": "Availability badge of the Currently card" }
 }

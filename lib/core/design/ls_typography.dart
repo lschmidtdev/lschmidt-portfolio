@@ -66,4 +66,57 @@ abstract final class LsType {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.06 * 12,
   );
+
+  static TextStyle displayFor(double width) {
+    final size = (width * 0.09).clamp(56.0, 128.0);
+    return display.copyWith(fontSize: size, letterSpacing: -0.045 * size);
+  }
+
+  static const lead = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 19,
+    height: 1.55,
+    fontWeight: FontWeight.w400,
+  );
+  static const button = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 15,
+    height: 1.2,
+    fontWeight: FontWeight.w500,
+  );
+  static const brand = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 15,
+    height: 1.2,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.01 * 15,
+  );
+  static const eyebrow = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 12,
+    height: 1.4,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.08 * 12,
+  );
+  static const caption = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 11,
+    height: 1.4,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.08 * 11,
+  );
+  static const stat = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 44,
+    height: 1.1,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.03 * 44,
+  );
+  static const statSm = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 28,
+    height: 1.1,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.02 * 28,
+  );
 }

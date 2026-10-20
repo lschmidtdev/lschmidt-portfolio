@@ -121,6 +121,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I build production Flutter apps and I am open to remote roles. This page needs JavaScript to load; you can reach me at lschmidt.dev@gmail.com.'**
   String get fallbackBody;
+
+  /// Accessible name of the main navigation landmark
+  ///
+  /// In en, this message translates to:
+  /// **'Main'**
+  String get navMainLabel;
+
+  /// Header link to the Selected work section
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get navWork;
+
+  /// Header link to the Experience section
+  ///
+  /// In en, this message translates to:
+  /// **'Experience'**
+  String get navExperience;
+
+  /// Header link to the Skills section
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get navSkills;
+
+  /// Header link to the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get navContact;
+
+  /// Accessible name of the EN/PT switch
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageGroupLabel;
+
+  /// Accessible name of the EN button
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglishLabel;
+
+  /// Accessible name of the PT button
+  ///
+  /// In en, this message translates to:
+  /// **'Português'**
+  String get languagePortugueseLabel;
+
+  /// Accessible name of the icon-only theme button
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle light or dark theme'**
+  String get themeToggleLabel;
+
+  /// Hero primary button, links to the PDF
+  ///
+  /// In en, this message translates to:
+  /// **'Download CV (PDF)'**
+  String get heroDownloadCv;
+
+  /// Hero ghost button, scrolls to the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Email me'**
+  String get heroEmailMe;
+
+  /// Title of the Currently card
+  ///
+  /// In en, this message translates to:
+  /// **'Currently'**
+  String get currentlyTitle;
+
+  /// Availability badge of the Currently card
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get currentlyAvailable;
 }
 
 class _AppLocalizationsDelegate

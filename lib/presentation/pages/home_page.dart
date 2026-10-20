@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lschmidt_portfolio/config/site_config.dart';
+import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
+import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
+import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
+import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
+import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/content_cubit.dart';
+import 'package:lschmidt_portfolio/presentation/cubits/locale_cubit.dart';
+import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
+import 'package:lschmidt_portfolio/presentation/sections/hero.dart';
+import 'package:lschmidt_portfolio/presentation/sections/site_header.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.clock = DateTime.now});
+
+  final DateTime Function() clock;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _placeholderHeight = 3000.0;
-
   final _scroll = ScrollController();
 
   @override
@@ -21,21 +31,64 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SingleChildScrollView(
-      controller: _scroll,
-      child: SizedBox(
-        height: _placeholderHeight,
-        child: Center(
-          child: BlocBuilder<ContentCubit, ContentState>(
-            builder: (context, state) => switch (state) {
-              ContentLoading() => const CircularProgressIndicator(),
-              ContentReady(:final content) => Text(content.profile.name),
-              ContentError() => const Text('Lucas Schmidt'),
-            },
+  Widget build(BuildContext context) {
+    final locale = context.watch<LocaleCubit>().state;
+    return Scaffold(
+      body: PrimaryScrollController(
+        controller: _scroll,
+        child: SingleChildScrollView(
+          controller: _scroll,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SiteHeader(
+                locale: locale,
+                onLocaleSelected: context.read<LocaleCubit>().select,
+                onToggleTheme: context.read<ThemeCubit>().toggle,
+              ),
+              BlocBuilder<ContentCubit, ContentState>(
+                builder: (context, state) => switch (state) {
+                  ContentLoading() => const SizedBox.shrink(),
+                  ContentReady(:final content) => HeroSection(
+                    profile: content.profile,
+                    currently: content.currently,
+                    locale: locale,
+                    now: widget.clock(),
+                  ),
+                  ContentError() => const _ContentUnavailable(),
+                },
+              ),
+            ],
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+class _ContentUnavailable extends StatelessWidget {
+  const _ContentUnavailable();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = LsColors.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    return SectionShell(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            SiteConfig.name.replaceFirst(' ', '\n'),
+            style: LsType.displayFor(width).copyWith(color: colors.fg),
+          ),
+          const SizedBox(height: 32),
+          LsButton.ghost(
+            label: AppLocalizations.of(context).heroEmailMe,
+            icon: Icons.mail_outline,
+            href: SiteConfig.mailto,
+          ),
+        ],
+      ),
+    );
+  }
 }

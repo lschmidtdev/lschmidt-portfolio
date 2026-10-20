@@ -3,5 +3,18 @@
   "metaTitle": "Lucas Schmidt — Engenheiro Mobile (Flutter)",
   "metaDescription": "Engenheiro mobile que desenvolve apps Flutter em produção desde 2020. Aberto a vagas remotas.",
   "fallbackTitle": "Lucas Schmidt, Engenheiro Mobile (Flutter)",
-  "fallbackBody": "Eu desenvolvo apps Flutter em produção e estou aberto a vagas remotas. Esta página precisa de JavaScript para carregar; você pode falar comigo em lschmidt.dev@gmail.com."
+  "fallbackBody": "Eu desenvolvo apps Flutter em produção e estou aberto a vagas remotas. Esta página precisa de JavaScript para carregar; você pode falar comigo em lschmidt.dev@gmail.com.",
+  "navMainLabel": "Principal",
+  "navWork": "Trabalho",
+  "navExperience": "Experiência",
+  "navSkills": "Habilidades",
+  "navContact": "Contato",
+  "languageGroupLabel": "Idioma",
+  "languageEnglishLabel": "English",
+  "languagePortugueseLabel": "Português",
+  "themeToggleLabel": "Alternar tema claro ou escuro",
+  "heroDownloadCv": "Baixar CV (PDF)",
+  "heroEmailMe": "Fale comigo",
+  "currentlyTitle": "Atualmente",
+  "currentlyAvailable": "Disponível"
 }

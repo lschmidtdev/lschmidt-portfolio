@@ -35,21 +35,40 @@ void main() {
     expect(portuguese.read<LocaleCubit>().state, AppLocale.pt);
   });
 
-  testWidgets('switching language keeps the scroll offset', (tester) async {
+  testWidgets('switching language keeps the scroll offset and the content', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1000, 500);
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(App(repository: FakePortfolioRepository()));
     await tester.pumpAndSettle();
     final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
-    scrollable.position.jumpTo(700);
+    expect(scrollable.position.maxScrollExtent, greaterThan(300));
+    scrollable.position.jumpTo(300);
     await tester.pump();
 
     tester
         .element(find.byType(Scaffold))
         .read<LocaleCubit>()
         .select(AppLocale.pt);
+    await tester.pump();
+
+    expect(find.text('Lucas\nSchmidt'), findsOneWidget);
+    expect(
+      tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels,
+      300,
+    );
+
     await tester.pumpAndSettle();
 
     final after = tester.state<ScrollableState>(find.byType(Scrollable));
-    expect(after.position.pixels, 700);
+    expect(after.position.pixels, 300);
     expect(after.context.read<LocaleCubit>().state, AppLocale.pt);
+    expect(find.text('ATUALMENTE'), findsOneWidget);
+    expect(
+      find.text('Engenheiro Mobile — Flutter'.toUpperCase()),
+      findsOneWidget,
+    );
   });
 }
