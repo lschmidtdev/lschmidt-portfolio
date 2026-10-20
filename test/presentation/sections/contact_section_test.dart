@@ -9,11 +9,14 @@ import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_link.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/contact_form_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
 
+import '../../helpers/mock_url_launcher.dart';
 import '../../helpers/pump_ls.dart';
+import '../../helpers/recording_analytics.dart';
 
 class _Repository implements ContactRepository {
   _Repository({this.fail = false, this.gate});
@@ -34,8 +37,9 @@ Widget _section(
   _Repository repository, {
   AppLocale locale = AppLocale.en,
   bool cvAvailable = false,
+  AnalyticsRepository analytics = const NoopAnalyticsRepository(),
 }) => BlocProvider(
-  create: (_) => ContactFormCubit(repository),
+  create: (_) => ContactFormCubit(repository, analytics: analytics),
   child: SingleChildScrollView(
     child: ContactSection(locale: locale, cvAvailable: cvAvailable),
   ),
@@ -47,12 +51,19 @@ Future<void> _pump(
   double width = 1440,
   AppLocale locale = AppLocale.en,
   bool cvAvailable = false,
+  AnalyticsRepository analytics = const NoopAnalyticsRepository(),
 }) => tester.pumpLs(
-  _section(repository, locale: locale, cvAvailable: cvAvailable),
+  _section(
+    repository,
+    locale: locale,
+    cvAvailable: cvAvailable,
+    analytics: analytics,
+  ),
   width: width,
   height: 1200,
   locale: locale,
   reducedMotion: true,
+  analytics: analytics,
 );
 
 Finder _field(String label) => find.byWidgetPredicate(
@@ -355,6 +366,103 @@ void main() {
 
     expect(repository.sent, isEmpty);
     expect(find.text('Message sent.'), findsOneWidget);
+  });
+
+  group('analytics', () {
+    testWidgets('a real send tracks contact_form_sent once', (tester) async {
+      final analytics = RecordingAnalytics();
+      await _pump(tester, _Repository(), analytics: analytics);
+      await _fillValid(tester);
+
+      await _tapSend(tester);
+      await tester.pumpAndSettle();
+
+      expect(analytics.events, [AnalyticsEvent.contactFormSent]);
+    });
+
+    testWidgets('nothing is tracked while the send is pending', (tester) async {
+      final analytics = RecordingAnalytics();
+      final gate = Completer<void>();
+      await _pump(tester, _Repository(gate: gate), analytics: analytics);
+      await _fillValid(tester);
+
+      await _tapSend(tester);
+
+      expect(analytics.events, isEmpty);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(analytics.events, [AnalyticsEvent.contactFormSent]);
+    });
+
+    testWidgets('a failed send and a validation error track nothing', (
+      tester,
+    ) async {
+      final analytics = RecordingAnalytics();
+      await _pump(tester, _Repository(fail: true), analytics: analytics);
+
+      await _tapSend(tester);
+      await _fillValid(tester);
+      await _tapSend(tester);
+      await tester.pumpAndSettle();
+
+      expect(analytics.events, isEmpty);
+    });
+
+    testWidgets('the honeypot path tracks nothing', (tester) async {
+      final analytics = RecordingAnalytics();
+      final repository = _Repository();
+      await _pump(tester, repository, analytics: analytics);
+      await _fillValid(tester);
+      tester
+              .widget<TextField>(
+                find.byKey(ContactSection.honeypotKey, skipOffstage: false),
+              )
+              .controller!
+              .text =
+          'http://spam.example';
+
+      await _tapSend(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Message sent.'), findsOneWidget);
+      expect(repository.sent, isEmpty);
+      expect(analytics.events, isEmpty);
+    });
+
+    testWidgets('the email app link tracks email_app_opened once', (
+      tester,
+    ) async {
+      final analytics = RecordingAnalytics();
+      await _pump(tester, _Repository(), analytics: analytics);
+
+      await tapIgnoringLaunchErrors(tester, find.text('OPEN IT'));
+
+      expect(analytics.events, [AnalyticsEvent.emailAppOpened]);
+    });
+
+    testWidgets('the mailto link in the failed state tracks it once', (
+      tester,
+    ) async {
+      final analytics = RecordingAnalytics();
+      await _pump(tester, _Repository(fail: true), analytics: analytics);
+      await _fillValid(tester);
+      await _tapSend(tester);
+      await tester.pumpAndSettle();
+      expect(analytics.events, isEmpty);
+
+      await tapIgnoringLaunchErrors(tester, find.text('EMAIL ME DIRECTLY'));
+
+      expect(analytics.events, [AnalyticsEvent.emailAppOpened]);
+    });
+
+    testWidgets('the plain email address link tracks nothing', (tester) async {
+      final analytics = RecordingAnalytics();
+      await _pump(tester, _Repository(), analytics: analytics);
+
+      await tapIgnoringLaunchErrors(tester, find.text(SiteConfig.email));
+
+      expect(analytics.events, isEmpty);
+    });
   });
 
   testWidgets('fields and buttons are at least 48 px tall', (tester) async {

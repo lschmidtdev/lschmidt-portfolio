@@ -9,8 +9,10 @@ import 'package:lschmidt_portfolio/core/design/ls_motion.dart';
 import 'package:lschmidt_portfolio/core/design/ls_theme.dart';
 import 'package:lschmidt_portfolio/core/platform/reduced_motion.dart';
 import 'package:lschmidt_portfolio/data/repositories/asset_portfolio_repository.dart';
+import 'package:lschmidt_portfolio/data/repositories/umami_analytics_repository.dart';
 import 'package:lschmidt_portfolio/data/repositories/web3forms_contact_repository.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/portfolio_repository.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
@@ -27,6 +29,7 @@ class App extends StatefulWidget {
     this.initialLocation = '/',
     this.repository,
     this.contactRepository,
+    this.analyticsRepository,
     this.httpClient,
     this.reducedMotion,
   });
@@ -34,6 +37,7 @@ class App extends StatefulWidget {
   final String initialLocation;
   final PortfolioRepository? repository;
   final ContactRepository? contactRepository;
+  final AnalyticsRepository? analyticsRepository;
   final http.Client? httpClient;
   final ValueListenable<bool>? reducedMotion;
 
@@ -57,6 +61,8 @@ class _AppState extends State<App> {
         widget.httpClient ?? _ownedClient!,
         accessKey: SiteConfig.web3formsKey,
       );
+  late final AnalyticsRepository _analyticsRepository =
+      widget.analyticsRepository ?? const UmamiAnalyticsRepository();
   late final ValueListenable<bool> _reducedMotion =
       widget.reducedMotion ?? prefersReducedMotion();
 
@@ -72,6 +78,9 @@ class _AppState extends State<App> {
     providers: [
       RepositoryProvider<PortfolioRepository>.value(value: _repository),
       RepositoryProvider<ContactRepository>.value(value: _contactRepository),
+      RepositoryProvider<AnalyticsRepository>.value(
+        value: _analyticsRepository,
+      ),
     ],
     child: MultiBlocProvider(
       providers: [
@@ -83,8 +92,10 @@ class _AppState extends State<App> {
         ),
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(
-          create: (context) =>
-              ContactFormCubit(context.read<ContactRepository>()),
+          create: (context) => ContactFormCubit(
+            context.read<ContactRepository>(),
+            analytics: context.read<AnalyticsRepository>(),
+          ),
         ),
         BlocProvider(
           create: (context) {

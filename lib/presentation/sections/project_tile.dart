@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
 import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
@@ -6,6 +7,7 @@ import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/phone_frame.dart';
 import 'package:lschmidt_portfolio/domain/entities/metric.dart';
 import 'package:lschmidt_portfolio/domain/entities/project.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:url_launcher/link.dart';
 
@@ -174,6 +176,9 @@ class _Copy extends StatelessWidget {
             icon: Icons.play_arrow_outlined,
             href: playStoreUrl,
             target: LinkTarget.blank,
+            onActivated: () => context.read<AnalyticsRepository>().track(
+              AnalyticsEvent.playStoreClick,
+            ),
           ),
         ),
     ];

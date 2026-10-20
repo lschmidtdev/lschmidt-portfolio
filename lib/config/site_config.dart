@@ -17,5 +17,7 @@ abstract final class SiteConfig {
 
   static const umamiWebsiteId = '';
 
+  static const umamiScriptUrl = 'https://cloud.umami.is/script.js';
+
   static final mailto = Uri(scheme: 'mailto', path: email);
 }

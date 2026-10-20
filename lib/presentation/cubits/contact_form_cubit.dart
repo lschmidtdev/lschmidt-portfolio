@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 
 sealed class ContactFormState {
@@ -25,9 +26,14 @@ class ContactFailed extends ContactFormState {
 }
 
 class ContactFormCubit extends Cubit<ContactFormState> {
-  ContactFormCubit(this._repository) : super(const ContactIdle());
+  ContactFormCubit(
+    this._repository, {
+    AnalyticsRepository analytics = const NoopAnalyticsRepository(),
+  }) : _analytics = analytics,
+       super(const ContactIdle());
 
   final ContactRepository _repository;
+  final AnalyticsRepository _analytics;
 
   Future<void> submit(ContactMessage message) async {
     if (state is ContactSending) return;
@@ -38,10 +44,12 @@ class ContactFormCubit extends Cubit<ContactFormState> {
     emit(const ContactSending());
     try {
       await _repository.send(message);
-      if (!isClosed) emit(const ContactSent());
     } on Object {
       if (!isClosed) emit(ContactFailed(message));
+      return;
     }
+    _analytics.track(AnalyticsEvent.contactFormSent);
+    if (!isClosed) emit(const ContactSent());
   }
 
   void reset() => emit(const ContactIdle());

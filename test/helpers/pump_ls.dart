@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lschmidt_portfolio/core/design/ls_theme.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/app_locale_x.dart';
 
@@ -14,6 +16,7 @@ extension PumpLs on WidgetTester {
     bool reducedMotion = false,
     bool light = false,
     AppLocale locale = AppLocale.en,
+    AnalyticsRepository analytics = const NoopAnalyticsRepository(),
   }) async {
     view.devicePixelRatio = 1;
     view.physicalSize = Size(width, height);
@@ -25,22 +28,25 @@ extension PumpLs on WidgetTester {
           FocusHighlightStrategy.automatic,
     );
     await pumpWidget(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: light ? LsTheme.light() : LsTheme.dark(),
-        locale: locale.flutterLocale,
-        supportedLocales: [
-          ...AppLocalizations.supportedLocales,
-          AppLocale.pt.flutterLocale,
-        ],
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        builder: (context, app) => MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(disableAnimations: reducedMotion),
-          child: app!,
+      RepositoryProvider<AnalyticsRepository>.value(
+        value: analytics,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: light ? LsTheme.light() : LsTheme.dark(),
+          locale: locale.flutterLocale,
+          supportedLocales: [
+            ...AppLocalizations.supportedLocales,
+            AppLocale.pt.flutterLocale,
+          ],
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          builder: (context, app) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(disableAnimations: reducedMotion),
+            child: app!,
+          ),
+          home: Scaffold(body: child),
         ),
-        home: Scaffold(body: child),
       ),
     );
   }
@@ -58,21 +64,25 @@ Widget atWidth(
   Widget child, {
   bool light = false,
   AppLocale locale = AppLocale.en,
+  AnalyticsRepository analytics = const NoopAnalyticsRepository(),
 }) {
   final theme = light ? LsTheme.light() : LsTheme.dark();
-  return Theme(
-    data: theme,
-    child: Localizations(
-      locale: locale.flutterLocale,
-      delegates: AppLocalizations.localizationsDelegates,
-      child: Builder(
-        builder: (context) => MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(size: Size(width, 900), disableAnimations: true),
-          child: ColoredBox(
-            color: theme.scaffoldBackgroundColor,
-            child: SizedBox(width: width, child: child),
+  return RepositoryProvider<AnalyticsRepository>.value(
+    value: analytics,
+    child: Theme(
+      data: theme,
+      child: Localizations(
+        locale: locale.flutterLocale,
+        delegates: AppLocalizations.localizationsDelegates,
+        child: Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(size: Size(width, 900), disableAnimations: true),
+            child: ColoredBox(
+              color: theme.scaffoldBackgroundColor,
+              child: SizedBox(width: width, child: child),
+            ),
           ),
         ),
       ),

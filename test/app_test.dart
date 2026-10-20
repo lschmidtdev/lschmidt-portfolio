@@ -11,6 +11,9 @@ import 'package:lschmidt_portfolio/config/site_config.dart';
 import 'package:lschmidt_portfolio/data/repositories/web3forms_contact_repository.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/domain/entities/portfolio_content.dart';
+import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
+import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/portfolio_repository.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
@@ -24,6 +27,7 @@ import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'helpers/fake_portfolio_repository.dart';
+import 'helpers/recording_analytics.dart';
 
 ScrollableState _pageScrollable(WidgetTester tester) =>
     tester.state<ScrollableState>(
@@ -34,6 +38,11 @@ ScrollableState _pageScrollable(WidgetTester tester) =>
           )
           .first,
     );
+
+class _AcceptingContactRepository implements ContactRepository {
+  @override
+  Future<void> send(ContactMessage message) async {}
+}
 
 class _PendingRepository implements PortfolioRepository {
   @override
@@ -110,6 +119,38 @@ void main() {
       expect(bodies, hasLength(1));
       expect(jsonDecode(bodies.single)['access_key'], SiteConfig.web3formsKey);
     }
+  });
+
+  testWidgets('the app provides the injected analytics to the contact form', (
+    tester,
+  ) async {
+    final analytics = RecordingAnalytics();
+    await tester.pumpWidget(
+      App(
+        repository: FakePortfolioRepository(),
+        contactRepository: _AcceptingContactRepository(),
+        analyticsRepository: analytics,
+      ),
+    );
+    await tester.pumpAndSettle();
+    Finder field(String label) => find.byWidgetPredicate(
+      (w) => w is TextField && w.decoration?.labelText == label,
+    );
+    await tester.ensureVisible(field('Name'));
+    await tester.pumpAndSettle();
+    await tester.enterText(field('Name'), 'Ana Recruiter');
+    await tester.enterText(field('Email'), 'ana@example.com');
+    await tester.enterText(
+      field('Message'),
+      'We have a remote Flutter role for you.',
+    );
+    await tester.ensureVisible(find.text('Send message'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Send message'));
+    await tester.pumpAndSettle();
+
+    expect(analytics.events, [AnalyticsEvent.contactFormSent]);
   });
 
   testWidgets('keeps the footer when the content fails', (tester) async {

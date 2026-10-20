@@ -12,6 +12,7 @@ class LsLink extends StatelessWidget {
     this.onPressed,
     this.href,
     this.target = LinkTarget.self,
+    this.onActivated,
     this.style = LsType.monoLabel,
     this.uppercase = true,
   }) : assert(onPressed == null || href == null, 'Pass onPressed or href.');
@@ -20,6 +21,7 @@ class LsLink extends StatelessWidget {
   final VoidCallback? onPressed;
   final Uri? href;
   final LinkTarget target;
+  final VoidCallback? onActivated;
   final TextStyle style;
   final bool uppercase;
 
@@ -30,7 +32,18 @@ class LsLink extends StatelessWidget {
     return Link(
       uri: href,
       target: target,
-      builder: (context, followLink) => _link(context, followLink),
+      builder: (context, followLink) => _link(
+        context,
+        followLink == null
+            ? null
+            : () {
+                try {
+                  onActivated?.call();
+                } finally {
+                  followLink();
+                }
+              },
+      ),
     );
   }
 

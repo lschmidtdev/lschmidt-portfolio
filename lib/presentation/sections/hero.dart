@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lschmidt_portfolio/config/site_config.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
@@ -8,6 +9,7 @@ import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/domain/entities/currently_item.dart';
 import 'package:lschmidt_portfolio/domain/entities/profile.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/sections/currently_card.dart';
 import 'package:url_launcher/link.dart';
@@ -132,6 +134,9 @@ class _Copy extends StatelessWidget {
                 icon: Icons.file_download_outlined,
                 href: HeroSection.cvUri(locale),
                 target: LinkTarget.blank,
+                onActivated: () => context.read<AnalyticsRepository>().track(
+                  AnalyticsEvent.cvDownload,
+                ),
               ),
             LsButton.ghost(
               label: l10n.heroEmailMe,

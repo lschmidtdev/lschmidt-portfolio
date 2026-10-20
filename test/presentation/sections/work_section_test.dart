@@ -7,11 +7,14 @@ import 'package:lschmidt_portfolio/core/widgets/phone_frame.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/domain/entities/project.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/presentation/sections/project_tile.dart';
 import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 
 import '../../helpers/fake_portfolio_repository.dart';
+import '../../helpers/mock_url_launcher.dart';
 import '../../helpers/pump_ls.dart';
+import '../../helpers/recording_analytics.dart';
 
 const _order = [
   'zsplit',
@@ -119,6 +122,21 @@ void main() {
 
     expect(find.text('Get it on Google Play'), findsOne);
     expect(tester.widget<LsButton>(find.byType(LsButton)).href, _playUrl);
+  });
+
+  testWidgets('the Play button tracks play_store_click once', (tester) async {
+    final analytics = RecordingAnalytics();
+    final launched = mockUrlLauncher(tester);
+    await tester.pumpLs(
+      _work(_projects(AppLocale.en, playUrl: _playUrl)),
+      analytics: analytics,
+    );
+
+    await tester.tap(find.text('Get it on Google Play'));
+    await tester.pump();
+
+    expect(analytics.events, [AnalyticsEvent.playStoreClick]);
+    expect(launched, [_playUrl.toString()]);
   });
 
   testWidgets('renders tags, stats and footnotes from the content', (

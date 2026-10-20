@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/contact_form_cubit.dart';
+
+import '../../helpers/recording_analytics.dart';
 
 class _Repository implements ContactRepository {
   _Repository({this.error, this.gate});
@@ -54,6 +57,43 @@ void main() {
     expect: () => [isA<ContactSent>()],
     verify: (_) => expect(repository.sent, isEmpty),
   );
+
+  group('analytics', () {
+    test('a sent message is tracked once, after the repository call', () async {
+      final analytics = RecordingAnalytics();
+      repository = _Repository();
+      final cubit = ContactFormCubit(repository, analytics: analytics);
+
+      await cubit.submit(_message);
+
+      expect(analytics.events, [AnalyticsEvent.contactFormSent]);
+      await cubit.close();
+    });
+
+    test('a failed send is not tracked', () async {
+      final analytics = RecordingAnalytics();
+      repository = _Repository(error: const ContactSendException('down'));
+      final cubit = ContactFormCubit(repository, analytics: analytics);
+
+      await cubit.submit(_message);
+
+      expect(cubit.state, isA<ContactFailed>());
+      expect(analytics.events, isEmpty);
+      await cubit.close();
+    });
+
+    test('the honeypot path is not tracked', () async {
+      final analytics = RecordingAnalytics();
+      repository = _Repository();
+      final cubit = ContactFormCubit(repository, analytics: analytics);
+
+      await cubit.submit(_spam);
+
+      expect(cubit.state, isA<ContactSent>());
+      expect(analytics.events, isEmpty);
+      await cubit.close();
+    });
+  });
 
   test('submit while sending is ignored', () async {
     final gate = Completer<void>();

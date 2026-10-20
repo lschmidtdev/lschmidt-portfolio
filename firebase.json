@@ -19,7 +19,7 @@
             { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
             {
               "key": "Content-Security-Policy-Report-Only",
-              "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/ 'sha256-gggZ1zPQkfzaXBu2yxJVGPrljSQrhV+bLn70XPicD1w=' 'sha256-hwElKaZuJ+HKUl8k3CauFFJhLzE5FtHOQG8SadjWLjE='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+              "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/ https://cloud.umami.is 'sha256-gggZ1zPQkfzaXBu2yxJVGPrljSQrhV+bLn70XPicD1w=' 'sha256-hwElKaZuJ+HKUl8k3CauFFJhLzE5FtHOQG8SadjWLjE='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com https://gateway.umami.is; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
             }
           ]
         }

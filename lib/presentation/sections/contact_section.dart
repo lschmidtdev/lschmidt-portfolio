@@ -10,6 +10,7 @@ import 'package:lschmidt_portfolio/core/widgets/reveal_on_scroll.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/usecases/validate_contact.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/contact_form_cubit.dart';
@@ -361,6 +362,9 @@ class _FieldsState extends State<_Fields> {
     final failed = widget.state is ContactFailed;
     final inputStyle = LsType.body.copyWith(color: colors.fg);
     final mailto = ContactSection.mailtoWithSubject(l10n.contactMailSubject);
+    void trackEmailApp() => context.read<AnalyticsRepository>().track(
+      AnalyticsEvent.emailAppOpened,
+    );
     final autovalidate = _submitted
         ? AutovalidateMode.onUserInteraction
         : AutovalidateMode.disabled;
@@ -429,7 +433,12 @@ class _FieldsState extends State<_Fields> {
                   style: LsType.bodySm.copyWith(color: colors.fg2),
                 ),
               ),
-              if (failed) LsLink(label: l10n.contactFailedMailto, href: mailto),
+              if (failed)
+                LsLink(
+                  label: l10n.contactFailedMailto,
+                  href: mailto,
+                  onActivated: trackEmailApp,
+                ),
               const SizedBox(height: LsSpacing.s3),
             ],
             Align(
@@ -448,7 +457,11 @@ class _FieldsState extends State<_Fields> {
                   l10n.contactEmailAppPrompt,
                   style: LsType.bodySm.copyWith(color: colors.fg2),
                 ),
-                LsLink(label: l10n.contactEmailAppAction, href: mailto),
+                LsLink(
+                  label: l10n.contactEmailAppAction,
+                  href: mailto,
+                  onActivated: trackEmailApp,
+                ),
               ],
             ),
           ],

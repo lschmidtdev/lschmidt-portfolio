@@ -15,6 +15,7 @@ class LsButton extends StatelessWidget {
     this.onPressed,
     this.href,
     this.target = LinkTarget.self,
+    this.onActivated,
   }) : _variant = _LsButtonVariant.primary,
        assert(onPressed == null || href == null, 'Pass onPressed or href.');
 
@@ -25,6 +26,7 @@ class LsButton extends StatelessWidget {
     this.onPressed,
     this.href,
     this.target = LinkTarget.self,
+    this.onActivated,
   }) : _variant = _LsButtonVariant.inverse,
        assert(onPressed == null || href == null, 'Pass onPressed or href.');
 
@@ -35,6 +37,7 @@ class LsButton extends StatelessWidget {
     this.onPressed,
     this.href,
     this.target = LinkTarget.self,
+    this.onActivated,
   }) : _variant = _LsButtonVariant.ghost,
        assert(onPressed == null || href == null, 'Pass onPressed or href.');
 
@@ -45,6 +48,7 @@ class LsButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Uri? href;
   final LinkTarget target;
+  final VoidCallback? onActivated;
   final _LsButtonVariant _variant;
 
   @override
@@ -54,10 +58,21 @@ class LsButton extends StatelessWidget {
     return Link(
       uri: href,
       target: target,
-      builder: (context, followLink) =>
-          _button(context, followLink, isLink: true),
+      builder: (context, followLink) => _button(
+        context,
+        followLink == null ? null : _activate(followLink),
+        isLink: true,
+      ),
     );
   }
+
+  VoidCallback _activate(VoidCallback followLink) => () {
+    try {
+      onActivated?.call();
+    } finally {
+      followLink();
+    }
+  };
 
   Widget _button(
     BuildContext context,

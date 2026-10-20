@@ -3,10 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
+import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/presentation/sections/hero.dart';
 
 import '../../helpers/fake_portfolio_repository.dart';
+import '../../helpers/mock_url_launcher.dart';
 import '../../helpers/pump_ls.dart';
+import '../../helpers/recording_analytics.dart';
 
 final _now = DateTime(2026, 10, 20);
 
@@ -116,6 +119,36 @@ void main() {
         isSemantics(label: 'Download CV (PDF)', isLink: true),
       );
       handle.dispose();
+    });
+  });
+
+  group('analytics', () {
+    testWidgets('the CV button tracks cv_download once', (tester) async {
+      final analytics = RecordingAnalytics();
+      mockUrlLauncher(tester);
+      await tester.pumpLs(
+        _page(_hero(AppLocale.en, cvAvailable: true)),
+        analytics: analytics,
+      );
+
+      await tester.tap(find.text('Download CV (PDF)'));
+      await tester.pump();
+
+      expect(analytics.events, [AnalyticsEvent.cvDownload]);
+    });
+
+    testWidgets('Email me tracks nothing', (tester) async {
+      final analytics = RecordingAnalytics();
+      await tester.pumpLs(
+        _page(_hero(AppLocale.en, cvAvailable: true)),
+        analytics: analytics,
+        reducedMotion: true,
+      );
+
+      await tester.tap(find.text('Email me'));
+      await tester.pumpAndSettle();
+
+      expect(analytics.events, isEmpty);
     });
   });
 
