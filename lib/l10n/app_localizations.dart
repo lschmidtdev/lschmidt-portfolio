@@ -199,6 +199,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Available'**
   String get currentlyAvailable;
+
+  /// Accessible name of the results strip
+  ///
+  /// In en, this message translates to:
+  /// **'Selected results'**
+  String get resultsLabel;
+
+  /// Heading of the Selected work section
+  ///
+  /// In en, this message translates to:
+  /// **'Selected work'**
+  String get workTitle;
+
+  /// Project count and period next to the Selected work heading
+  ///
+  /// In en, this message translates to:
+  /// **'{count} projects · 2023 — 2026'**
+  String workCount(String count);
+
+  /// Button linking to the Play Store listing of a project
+  ///
+  /// In en, this message translates to:
+  /// **'Get it on Google Play'**
+  String get workPlayStore;
 }
 
 class _AppLocalizationsDelegate

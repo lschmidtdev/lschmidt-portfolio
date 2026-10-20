@@ -10,7 +10,9 @@ import 'package:lschmidt_portfolio/presentation/cubits/content_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/locale_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/sections/hero.dart';
+import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
 import 'package:lschmidt_portfolio/presentation/sections/site_header.dart';
+import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.clock = DateTime.now});
@@ -23,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _scroll = ScrollController();
+  final _sectionKeys = SectionKeys();
 
   @override
   void dispose() {
@@ -33,32 +36,42 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<LocaleCubit>().state;
-    return Scaffold(
-      body: PrimaryScrollController(
-        controller: _scroll,
-        child: SingleChildScrollView(
+    return SectionScope(
+      keys: _sectionKeys,
+      child: Scaffold(
+        body: PrimaryScrollController(
           controller: _scroll,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SiteHeader(
-                locale: locale,
-                onLocaleSelected: context.read<LocaleCubit>().select,
-                onToggleTheme: context.read<ThemeCubit>().toggle,
-              ),
-              BlocBuilder<ContentCubit, ContentState>(
-                builder: (context, state) => switch (state) {
-                  ContentLoading() => const SizedBox.shrink(),
-                  ContentReady(:final content) => HeroSection(
-                    profile: content.profile,
-                    currently: content.currently,
-                    locale: locale,
-                    now: widget.clock(),
-                  ),
-                  ContentError() => const _ContentUnavailable(),
-                },
-              ),
-            ],
+          child: SingleChildScrollView(
+            controller: _scroll,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SiteHeader(
+                  locale: locale,
+                  onLocaleSelected: context.read<LocaleCubit>().select,
+                  onToggleTheme: context.read<ThemeCubit>().toggle,
+                ),
+                BlocBuilder<ContentCubit, ContentState>(
+                  builder: (context, state) => switch (state) {
+                    ContentLoading() => const SizedBox.shrink(),
+                    ContentReady(:final content) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        HeroSection(
+                          profile: content.profile,
+                          currently: content.currently,
+                          locale: locale,
+                          now: widget.clock(),
+                        ),
+                        ResultsStrip(metrics: content.metrics),
+                        WorkSection(projects: content.projects),
+                      ],
+                    ),
+                    ContentError() => const _ContentUnavailable(),
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

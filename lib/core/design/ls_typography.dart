@@ -119,4 +119,53 @@ abstract final class LsType {
     fontWeight: FontWeight.w500,
     letterSpacing: -0.02 * 28,
   );
+
+  static const statUnit = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 20,
+    height: 1.1,
+    fontWeight: FontWeight.w500,
+  );
+  static const statMono = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 20,
+    height: 1.2,
+    fontWeight: FontWeight.w400,
+  );
+  static const h3Feature = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 32,
+    height: 1.15,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.025 * 32,
+  );
+  static const tileBody = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 15,
+    height: 1.55,
+    fontWeight: FontWeight.w400,
+  );
+  static const tag = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 11,
+    height: 1.4,
+    fontWeight: FontWeight.w400,
+  );
+  static const micro = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 10,
+    height: 1.4,
+    fontWeight: FontWeight.w400,
+  );
+  static const monoSm = TextStyle(
+    fontFamily: LsFonts.mono,
+    fontSize: 12,
+    height: 1.5,
+    fontWeight: FontWeight.w400,
+  );
+
+  static TextStyle h2For(double width) {
+    final size = (width * 0.04).clamp(32.0, 48.0);
+    return h2.copyWith(fontSize: size, letterSpacing: -0.03 * size);
+  }
 }

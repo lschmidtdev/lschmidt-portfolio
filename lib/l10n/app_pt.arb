@@ -16,5 +16,9 @@
   "heroDownloadCv": "Baixar CV (PDF)",
   "heroEmailMe": "Fale comigo",
   "currentlyTitle": "Atualmente",
-  "currentlyAvailable": "Disponível"
+  "currentlyAvailable": "Disponível",
+  "resultsLabel": "Resultados em destaque",
+  "workTitle": "Trabalhos selecionados",
+  "workCount": "{count} projetos · 2023 — 2026",
+  "workPlayStore": "Disponível no Google Play"
 }

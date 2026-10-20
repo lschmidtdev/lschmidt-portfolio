@@ -41,5 +41,16 @@
   "currentlyTitle": "Currently",
   "@currentlyTitle": { "description": "Title of the Currently card" },
   "currentlyAvailable": "Available",
-  "@currentlyAvailable": { "description": "Availability badge of the Currently card" }
+  "@currentlyAvailable": { "description": "Availability badge of the Currently card" },
+  "resultsLabel": "Selected results",
+  "@resultsLabel": { "description": "Accessible name of the results strip" },
+  "workTitle": "Selected work",
+  "@workTitle": { "description": "Heading of the Selected work section" },
+  "workCount": "{count} projects · 2023 — 2026",
+  "@workCount": {
+    "description": "Project count and period next to the Selected work heading",
+    "placeholders": { "count": { "type": "String" } }
+  },
+  "workPlayStore": "Get it on Google Play",
+  "@workPlayStore": { "description": "Button linking to the Play Store listing of a project" }
 }

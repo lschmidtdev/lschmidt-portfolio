@@ -60,4 +60,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currentlyAvailable => 'Available';
+
+  @override
+  String get resultsLabel => 'Selected results';
+
+  @override
+  String get workTitle => 'Selected work';
+
+  @override
+  String workCount(String count) {
+    return '$count projects · 2023 — 2026';
+  }
+
+  @override
+  String get workPlayStore => 'Get it on Google Play';
 }

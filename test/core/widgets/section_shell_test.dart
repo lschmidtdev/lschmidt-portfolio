@@ -47,4 +47,59 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('two scopes can hold the same section at once', (tester) async {
+    final first = SectionKeys();
+    final second = SectionKeys();
+    await tester.pumpLs(
+      Column(
+        children: [
+          SectionScope(
+            keys: first,
+            child: const SectionShell(
+              id: SectionId.work,
+              child: SizedBox(height: 10),
+            ),
+          ),
+          SectionScope(
+            keys: second,
+            child: const SectionShell(
+              id: SectionId.work,
+              child: SizedBox(height: 10),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(first[SectionId.work].currentContext, isNotNull);
+    expect(second[SectionId.work].currentContext, isNotNull);
+    expect(first[SectionId.work], isNot(second[SectionId.work]));
+  });
+
+  testWidgets('scrollTo uses the keys of the enclosing scope', (tester) async {
+    await tester.pumpLs(
+      SectionScope(
+        keys: SectionKeys(),
+        child: const SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 2000),
+              SectionShell(id: SectionId.work, child: SizedBox(height: 50)),
+            ],
+          ),
+        ),
+      ),
+      reducedMotion: true,
+    );
+
+    await SectionId.work.scrollTo(
+      tester.element(find.byType(SingleChildScrollView)),
+    );
+    await tester.pump();
+
+    final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+    expect(scrollable.position.pixels, greaterThan(0));
+  });
 }

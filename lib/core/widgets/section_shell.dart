@@ -10,14 +10,15 @@ enum SectionId {
   skills,
   contact;
 
-  static final _keys = {
-    for (final id in SectionId.values) id: GlobalKey(debugLabel: id.name),
-  };
+  static final _fallback = SectionKeys();
 
-  GlobalKey get key => _keys[this]!;
+  GlobalKey get key => _fallback[this];
+
+  GlobalKey keyIn(BuildContext context) =>
+      (SectionScope.maybeOf(context) ?? _fallback)[this];
 
   Future<void> scrollTo(BuildContext context) async {
-    final target = key.currentContext;
+    final target = keyIn(context).currentContext;
     if (target == null) return;
     final motion = LsMotion.of(context);
     await Scrollable.ensureVisible(
@@ -26,6 +27,26 @@ enum SectionId {
       curve: Curves.easeOut,
     );
   }
+}
+
+class SectionKeys {
+  final _keys = {
+    for (final id in SectionId.values) id: GlobalKey(debugLabel: id.name),
+  };
+
+  GlobalKey operator [](SectionId id) => _keys[id]!;
+}
+
+class SectionScope extends InheritedWidget {
+  const SectionScope({super.key, required this.keys, required super.child});
+
+  final SectionKeys keys;
+
+  static SectionKeys? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<SectionScope>()?.keys;
+
+  @override
+  bool updateShouldNotify(SectionScope oldWidget) => keys != oldWidget.keys;
 }
 
 class SectionShell extends StatelessWidget {
@@ -78,6 +99,6 @@ class SectionShell extends StatelessWidget {
             child: content,
           )
         : content;
-    return KeyedSubtree(key: id?.key, child: framed);
+    return KeyedSubtree(key: id?.keyIn(context), child: framed);
   }
 }
