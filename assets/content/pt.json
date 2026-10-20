@@ -1,0 +1,146 @@
+{
+  "profile": {
+    "name": "Lucas Schmidt",
+    "role": "Engenheiro Mobile — Flutter",
+    "summary": "Construo apps Flutter em produção desde 2020. Hoje: apps de saúde na Pulsati, um deles com mais de 100 mil downloads. Antes disso, fui o único desenvolvedor mobile de uma operadora logística e engenheiro de sistemas hospitalares na Philips. Aberto a vagas remotas."
+  },
+  "currently": [
+    { "label": "STATUS", "value": "Aberto a vagas remotas", "date": null },
+    { "label": "AGORA", "value": "Apps de saúde · Pulsati", "date": null },
+    { "label": "LANÇADO", "value": "zirkon.com.br v1.0.0 · out 2026", "date": "2026-10-18" },
+    { "label": "PRÓXIMO", "value": "Zsplit · lançamento em out 2026", "date": "2026-10-20" },
+    { "label": "BASE", "value": "Blumenau, BR · UTC−3 · EN C1", "date": null }
+  ],
+  "metrics": [
+    { "value": "100K+", "unit": null, "label": "Downloads no UsiSaúde, redesenhado e migrado para BLoC" },
+    { "value": "5 → 1", "unit": "min", "label": "Tempo de envio de mídia num app de inspeção em campo, Kotlin nativo" },
+    { "value": "571", "unit": null, "label": "Testes automatizados no zirkon.com.br: 557 em Dart + 14 em Playwright" },
+    { "value": "1", "unit": "semana", "label": "Pra reconstruir a integração com um analisador laboratorial hospitalar na Philips" }
+  ],
+  "projects": [
+    {
+      "id": "zsplit",
+      "index": "01",
+      "eyebrow": "PRODUTO PRÓPRIO · 2025 — AGORA",
+      "title": "Zsplit",
+      "summary": "Divisão de despesas em grupo para eventos e encontros. Tire uma foto do recibo e o Gemini lê cada linha, confere o que é compra de verdade e devolve os itens prontos pra atribuir às pessoas.",
+      "tags": ["Flutter", "BLoC", "Supabase · RLS", "Gemini API"],
+      "stats": [],
+      "footnote": null,
+      "playStoreUrl": null,
+      "featured": true
+    },
+    {
+      "id": "usisaude-hmc",
+      "index": "02",
+      "eyebrow": "PULSATI · 2025 — AGORA",
+      "title": "UsiSaúde & HMC",
+      "summary": "Apps de saúde para um plano de saúde e um hospital. Redesenhei cerca de 20 telas, criei uma biblioteca de componentes compartilhada e migrei os dois apps para BLoC.",
+      "tags": [],
+      "stats": [
+        { "value": "100K+", "unit": null, "label": "USISAÚDE" },
+        { "value": "10K+", "unit": null, "label": "HMC" }
+      ],
+      "footnote": null,
+      "playStoreUrl": null,
+      "featured": false
+    },
+    {
+      "id": "zirkon-site",
+      "index": "03",
+      "eyebrow": "ZIRKON LABS · 2026",
+      "title": "zirkon.com.br",
+      "summary": "O site do meu estúdio, feito em Flutter com um release totalmente automatizado: cada versão é testada e depois promovida do preview para produção.",
+      "tags": [],
+      "stats": [
+        { "value": "100", "unit": null, "label": "A11Y" },
+        { "value": "100", "unit": null, "label": "SEO" },
+        { "value": "0,96s", "unit": null, "label": "LCP" }
+      ],
+      "footnote": null,
+      "playStoreUrl": null,
+      "featured": false
+    },
+    {
+      "id": "meu-tecadi",
+      "index": "04",
+      "eyebrow": "TECADI · 2024 — 2025",
+      "title": "Meu Tecadi",
+      "summary": "O app da empresa para todos os colaboradores, criado do zero como único desenvolvedor mobile. BLoC e Clean Architecture, armazenamento offline com SQLite, notificações push.",
+      "tags": [],
+      "stats": [],
+      "footnote": "Lançado em jan 2025 · Google Play & App Store",
+      "playStoreUrl": null,
+      "featured": false
+    },
+    {
+      "id": "logi360-checklist",
+      "index": "05",
+      "eyebrow": "TECADI · 2025",
+      "title": "Logi360 Checklist",
+      "summary": "Inspeções com 10–30+ fotos e vídeos de 1 a 5 minutos. Compressão no dispositivo e uploads em segundo plano em partes, em Kotlin nativo, com nova tentativa quando a conexão cai.",
+      "tags": [],
+      "stats": [],
+      "footnote": "Espera no upload: até 5 min → no máximo 1 min",
+      "playStoreUrl": null,
+      "featured": false
+    }
+  ],
+  "roles": [
+    {
+      "period": "mar 2025 — Atual",
+      "current": true,
+      "company": "Pulsati",
+      "title": "Engenheiro de Software · Mobile",
+      "summary": "Apps de saúde para planos de saúde, hospitais e clínicas odontológicas em Flutter, além de React e Java quando a funcionalidade pede. Login biométrico, agendamento, resultados de exames; dados de pacientes protegidos conforme a LGPD. Code review e mentoria."
+    },
+    {
+      "period": "nov 2024 — mar 2025",
+      "current": false,
+      "company": "Tecadi",
+      "title": "Engenheiro de Software · Mobile — único desenvolvedor mobile",
+      "summary": "Escolhi a arquitetura e entreguei o app corporativo para todos os colaboradores. Reconstruí o envio de mídia em Kotlin nativo. Mantive o plugin interno compartilhado por todos os apps da Tecadi."
+    },
+    {
+      "period": "jul 2023 — nov 2024",
+      "current": false,
+      "company": "Zirkon Labs",
+      "title": "Engenheiro de Software · Mobile — estúdio próprio",
+      "summary": "Criei, ao longo de 8 meses e com um desenvolvedor back-end Python, um app de inglês com repetição espaçada: agendamento de revisões, painéis para professores e estudo offline. Usado por cerca de 100 alunos no Android e no iOS."
+    },
+    {
+      "period": "dez 2021 — abr 2023",
+      "current": false,
+      "company": "Philips",
+      "title": "Engenheiro de Software — sistema hospitalar Tasy",
+      "summary": "Módulos de radiologia e laboratório. Reconstruí a integração com um analisador laboratorial em um prazo de 1 semana e refatorei cerca de 20 telas propensas a travar, que passaram a rodar de 10 a 20 s mais rápido. De estagiário a júnior em 12 meses."
+    }
+  ],
+  "skillGroups": [
+    {
+      "title": "BASE · USO DIÁRIO",
+      "primary": true,
+      "items": ["Flutter", "Dart", "BLoC", "Clean Architecture", "Kotlin (Android)", "Firebase", "Supabase", "PostgreSQL", "SQLite", "REST", "Publicação na Play Store e App Store"]
+    },
+    {
+      "title": "CONHECIMENTO DE TRABALHO",
+      "primary": false,
+      "items": ["React", "Java", "JavaScript", "C#/.NET", "Oracle", "PL/SQL", "Riverpod", "Material 3", "testes unitários e de widget", "acessibilidade", "i18n"]
+    },
+    {
+      "title": "IA APLICADA",
+      "primary": false,
+      "items": ["Gemini API em produção", "engenharia de prompt para extração de dados", "integração de LLMs em apps Flutter"]
+    },
+    {
+      "title": "ENTREGA",
+      "primary": false,
+      "items": ["GitHub Actions", "build-once-promote", "Firebase Hosting", "Google Cloud", "Playwright", "golden tests", "code review"]
+    }
+  ],
+  "education": [
+    { "degree": "Bacharelado em Engenharia de Software", "institution": "Ampli", "period": "previsão dez 2027" },
+    { "degree": "Técnico em Informática", "institution": "IFSC", "period": "2017" }
+  ],
+  "languages": ["Português (nativo)", "Inglês (C1)"]
+}
