@@ -1,0 +1,29 @@
+{
+  "hosting": [
+    {
+      "target": "site",
+      "public": "build/web",
+      "ignore": ["firebase.json", "**/.*"],
+      "trailingSlash": false,
+      "rewrites": [{ "source": "/pt", "destination": "/pt/index.html" }],
+      "redirects": [
+        { "source": "/index.html", "destination": "/", "type": 301 },
+        { "source": "/pt/index.html", "destination": "/pt", "type": 301 }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Cache-Control", "value": "no-cache" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            {
+              "key": "Content-Security-Policy-Report-Only",
+              "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/ 'sha256-gggZ1zPQkfzaXBu2yxJVGPrljSQrhV+bLn70XPicD1w=' 'sha256-hwElKaZuJ+HKUl8k3CauFFJhLzE5FtHOQG8SadjWLjE='; style-src 'self' 'unsafe-inline'; connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

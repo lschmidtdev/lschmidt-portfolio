@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed; skipping the secret scan (CI still runs it)." >&2
+  exit 0
+fi
+exec gitleaks git --staged --config .gitleaks.toml --redact --verbose

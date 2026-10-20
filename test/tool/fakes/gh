@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+[[ -n ${FAKE_WARNING:-} ]] && echo "$FAKE_WARNING" >&2
+args=" $* "
+case "$1" in
+  variable)
+    if [[ $2 == get ]]; then
+      case "$3" in
+        DEPLOY_CHANNEL) printf '%s\n' "${FAKE_DEPLOY_CHANNEL:-next}" ;;
+        *) echo "unexpected variable $3" >&2; exit 2 ;;
+      esac
+    fi ;;
+  api)
+    case "$args" in
+      *" -X "*)
+        body=$(cat 2>/dev/null || true)
+        [[ -n ${FAKE_LOG:-} ]] && printf '%s\n' "$*" >>"$FAKE_LOG"
+        case "$args" in
+          *" -X PUT "*/environments/*)
+            for field in '"wait_timer": 0' '"prevent_self_review": false' \
+                '"reviewers": []' '"deployment_branch_policy"'; do
+              [[ $body == *"$field"* ]] || { echo "env body lacks $field" >&2; exit 3; }
+            done ;;
+          *" -X POST "*/rulesets" "*)
+            [[ -n ${FAKE_STATE:-} ]] && touch "$FAKE_STATE/ruleset-created" ;;
+        esac ;;
+      *secret_scanning_push_protection*)
+        printf '%s\n' "${FAKE_PUSH_PROTECTION:-enabled}" ;;
+      *security_and_analysis.secret_scanning.status*)
+        printf '%s\n' "${FAKE_SECRET_SCANNING:-enabled}" ;;
+      */deployment-branch-policies*)
+        printf '%b\n' "${FAKE_LIVE_POLICIES:-main}" ;;
+      */environments/*)
+        printf '%s\n' "${FAKE_ENV_RULES:-}" ;;
+      */rulesets/*)
+        printf 'active|0|%s;%s|%s|%s\n' "${FAKE_RULESET_STRICT:-true}" \
+          "${FAKE_RULESET_CHECKS:-gitleaks@15368,pr-title@15368,verify / build@15368,workflow-lint@15368}" \
+          "${FAKE_RULESET_TYPES:-deletion,non_fast_forward,pull_request,required_linear_history,required_status_checks}" \
+          "${FAKE_RULESET_INCLUDE:-refs/heads/main}" ;;
+      */rulesets*)
+        if [[ -n ${FAKE_NO_RULESET:-} && ! -e ${FAKE_STATE:-/nonexistent}/ruleset-created ]]; then
+          :
+        else
+          printf '42\n'
+        fi ;;
+      *) echo "unexpected: $*" >&2; exit 2 ;;
+    esac ;;
+  *) echo "unexpected: $*" >&2; exit 2 ;;
+esac
