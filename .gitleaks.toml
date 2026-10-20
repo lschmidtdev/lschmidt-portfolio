@@ -2,3 +2,8 @@ title = "lschmidt-portfolio"
 
 [extend]
 useDefault = true
+
+[[allowlists]]
+description = "Web3Forms access key, public by design (spec 6.5)"
+regexTarget = "match"
+regexes = ['''1339392d-1dd4-4b11-9b49-258fdfad057f''']
