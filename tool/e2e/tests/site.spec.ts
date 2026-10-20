@@ -27,7 +27,6 @@ for (const { name, width, height } of viewports) {
         expect(
           await page.evaluate(() => (window as unknown as { shellLang: string }).shellLang),
         ).toBe(lang);
-        await page.locator('flt-semantics-placeholder').dispatchEvent('click');
         await expect(page.getByText('Lucas Schmidt').first()).toBeVisible();
         await expect(page.locator('html')).toHaveAttribute('lang', lang);
         await page.waitForTimeout(1_000);
