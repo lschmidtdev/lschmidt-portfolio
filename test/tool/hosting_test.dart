@@ -62,7 +62,7 @@ void main() {
         "default-src 'self'; "
         "script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/; "
         "style-src 'self' 'unsafe-inline'; "
-        "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/; "
+        "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'";
     final value = headers()['Content-Security-Policy-Report-Only']!.replaceAll(
       RegExp(r" 'sha256-[A-Za-z0-9+/=]+'"),

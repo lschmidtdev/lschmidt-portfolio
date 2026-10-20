@@ -102,4 +102,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String footerCvUpdated(String date) {
     return 'CV updated $date';
   }
+
+  @override
+  String get contactEyebrow => 'Contact';
+
+  @override
+  String get contactHeading => 'Hiring a\n*Flutter* engineer?';
+
+  @override
+  String get contactLinkedIn => 'LinkedIn ↗';
+
+  @override
+  String get contactGitHub => 'GitHub ↗';
+
+  @override
+  String get contactCv => 'CV · PDF ↓';
+
+  @override
+  String get contactFormLabel => 'Contact form';
+
+  @override
+  String get contactNameLabel => 'Name';
+
+  @override
+  String get contactEmailLabel => 'Email';
+
+  @override
+  String get contactCompanyLabel => 'Company (optional)';
+
+  @override
+  String get contactMessageLabel => 'Message';
+
+  @override
+  String get contactErrorNameRequired => 'Please enter your name.';
+
+  @override
+  String get contactErrorEmailInvalid => 'Please enter a valid email address.';
+
+  @override
+  String get contactErrorMessageTooShort =>
+      'Please write at least 10 characters.';
+
+  @override
+  String get contactSend => 'Send message';
+
+  @override
+  String get contactSending => 'Sending…';
+
+  @override
+  String get contactSentTitle => 'Message sent.';
+
+  @override
+  String get contactSentBody =>
+      'Thanks for reaching out. I will reply by email.';
+
+  @override
+  String get contactSendAnother => 'Send another message';
+
+  @override
+  String get contactFailedMessage =>
+      'Your message could not be sent. It is still in the form, so you can try again or email me directly.';
+
+  @override
+  String get contactFailedMailto => 'Email me directly';
+
+  @override
+  String get contactEmailAppPrompt => 'Prefer your own email app?';
+
+  @override
+  String get contactEmailAppAction => 'Open it';
+
+  @override
+  String get contactMailSubject => 'Remote Flutter opportunity';
 }

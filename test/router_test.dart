@@ -43,7 +43,9 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(App(repository: FakePortfolioRepository()));
     await tester.pumpAndSettle();
-    final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+    final scrollable = tester.state<ScrollableState>(
+      find.byType(Scrollable).first,
+    );
     expect(scrollable.position.maxScrollExtent, greaterThan(300));
     scrollable.position.jumpTo(300);
     await tester.pump();
@@ -56,13 +58,16 @@ void main() {
 
     expect(find.text('Lucas\nSchmidt'), findsOneWidget);
     expect(
-      tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels,
+      tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position
+          .pixels,
       300,
     );
 
     await tester.pumpAndSettle();
 
-    final after = tester.state<ScrollableState>(find.byType(Scrollable));
+    final after = tester.state<ScrollableState>(find.byType(Scrollable).first);
     expect(after.position.pixels, 300);
     expect(after.context.read<LocaleCubit>().state, AppLocale.pt);
     expect(find.text('ATUALMENTE'), findsOneWidget);

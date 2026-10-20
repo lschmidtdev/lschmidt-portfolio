@@ -271,6 +271,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'CV updated {date}'**
   String footerCvUpdated(String date);
+
+  /// Eyebrow of the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactEyebrow;
+
+  /// Contact heading; the text between asterisks gets the accent colour
+  ///
+  /// In en, this message translates to:
+  /// **'Hiring a\n*Flutter* engineer?'**
+  String get contactHeading;
+
+  /// Button linking to the LinkedIn profile
+  ///
+  /// In en, this message translates to:
+  /// **'LinkedIn ↗'**
+  String get contactLinkedIn;
+
+  /// Button linking to the GitHub profile
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub ↗'**
+  String get contactGitHub;
+
+  /// Button linking to the CV PDF
+  ///
+  /// In en, this message translates to:
+  /// **'CV · PDF ↓'**
+  String get contactCv;
+
+  /// Accessible name of the contact form
+  ///
+  /// In en, this message translates to:
+  /// **'Contact form'**
+  String get contactFormLabel;
+
+  /// Label of the name field
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get contactNameLabel;
+
+  /// Label of the email field
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactEmailLabel;
+
+  /// Label of the optional company field
+  ///
+  /// In en, this message translates to:
+  /// **'Company (optional)'**
+  String get contactCompanyLabel;
+
+  /// Label of the message field
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get contactMessageLabel;
+
+  /// Validation error for an empty name
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name.'**
+  String get contactErrorNameRequired;
+
+  /// Validation error for an invalid email
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get contactErrorEmailInvalid;
+
+  /// Validation error for a short message
+  ///
+  /// In en, this message translates to:
+  /// **'Please write at least 10 characters.'**
+  String get contactErrorMessageTooShort;
+
+  /// Submit button of the contact form
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get contactSend;
+
+  /// Submit button text and status while the message is being sent
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get contactSending;
+
+  /// Heading shown after the message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent.'**
+  String get contactSentTitle;
+
+  /// Text shown after the message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for reaching out. I will reply by email.'**
+  String get contactSentBody;
+
+  /// Button that shows the form again after a message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Send another message'**
+  String get contactSendAnother;
+
+  /// Text shown when sending failed
+  ///
+  /// In en, this message translates to:
+  /// **'Your message could not be sent. It is still in the form, so you can try again or email me directly.'**
+  String get contactFailedMessage;
+
+  /// Link to the email app shown when sending failed
+  ///
+  /// In en, this message translates to:
+  /// **'Email me directly'**
+  String get contactFailedMailto;
+
+  /// Prompt before the link that opens the email app
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer your own email app?'**
+  String get contactEmailAppPrompt;
+
+  /// Link that opens the email app
+  ///
+  /// In en, this message translates to:
+  /// **'Open it'**
+  String get contactEmailAppAction;
+
+  /// Subject of the message prepared by the email app link
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Flutter opportunity'**
+  String get contactMailSubject;
 }
 
 class _AppLocalizationsDelegate

@@ -9,6 +9,7 @@ import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/content_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/locale_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
+import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/experience_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/hero.dart';
 import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
@@ -74,12 +75,13 @@ class _HomePageState extends State<HomePage> {
                           education: content.education,
                           languages: content.languages,
                         ),
-                        const SiteFooter(),
+                        ContactSection(locale: locale),
                       ],
                     ),
                     ContentError() => const _ContentUnavailable(),
                   },
                 ),
+                const SiteFooter(),
               ],
             ),
           ),
