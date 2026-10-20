@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Mobile engineer building production Flutter apps since 2020. Open to remote roles.'**
   String get metaDescription;
 
+  /// Alt text of the link preview image (og:image:alt, twitter:image:alt)
+  ///
+  /// In en, this message translates to:
+  /// **'Lucas Schmidt, Mobile Engineer (Flutter): production Flutter apps since 2020, open to remote roles.'**
+  String get metaImageAlt;
+
   /// Heading of the no-JavaScript fallback
   ///
   /// In en, this message translates to:

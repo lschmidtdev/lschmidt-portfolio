@@ -8,6 +8,10 @@
   "@metaDescription": {
     "description": "Meta description and social description of the shell, at most 160 characters"
   },
+  "metaImageAlt": "Lucas Schmidt, Mobile Engineer (Flutter): production Flutter apps since 2020, open to remote roles.",
+  "@metaImageAlt": {
+    "description": "Alt text of the link preview image (og:image:alt, twitter:image:alt)"
+  },
   "fallbackTitle": "Lucas Schmidt, Mobile Engineer (Flutter)",
   "@fallbackTitle": {
     "description": "Heading of the no-JavaScript fallback"

@@ -16,6 +16,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Engenheiro mobile que desenvolve apps Flutter em produção desde 2020. Aberto a vagas remotas.';
 
   @override
+  String get metaImageAlt =>
+      'Lucas Schmidt, Engenheiro Mobile (Flutter): apps Flutter em produção desde 2020, aberto a vagas remotas.';
+
+  @override
   String get fallbackTitle => 'Lucas Schmidt, Engenheiro Mobile (Flutter)';
 
   @override

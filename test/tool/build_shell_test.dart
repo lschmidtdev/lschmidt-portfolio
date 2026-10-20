@@ -189,7 +189,18 @@ void main() {
         html,
         contains(
           '<meta property="og:image" '
-          'content="https://lschmidt.tech/og-image.png">',
+          'content="${config.origin}/og-image.png">',
+        ),
+      );
+      expect(html, contains('<meta property="og:image:width" content="1200">'));
+      expect(html, contains('<meta property="og:image:height" content="630">'));
+      final alt = escapeHtml(arb['metaImageAlt']! as String);
+      expect(html, contains('<meta property="og:image:alt" content="$alt">'));
+      expect(html, contains('<meta name="twitter:image:alt" content="$alt">'));
+      expect(
+        html,
+        contains(
+          '<meta name="twitter:image" content="${config.origin}/og-image.png">',
         ),
       );
       expect(
@@ -318,6 +329,7 @@ void main() {
       for (final key in [
         'metaTitle',
         'metaDescription',
+        'metaImageAlt',
         'fallbackTitle',
         'fallbackBody',
       ]) {

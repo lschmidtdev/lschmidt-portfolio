@@ -16,6 +16,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Mobile engineer building production Flutter apps since 2020. Open to remote roles.';
 
   @override
+  String get metaImageAlt =>
+      'Lucas Schmidt, Mobile Engineer (Flutter): production Flutter apps since 2020, open to remote roles.';
+
+  @override
   String get fallbackTitle => 'Lucas Schmidt, Mobile Engineer (Flutter)';
 
   @override

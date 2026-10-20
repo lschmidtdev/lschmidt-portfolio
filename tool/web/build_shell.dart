@@ -86,6 +86,7 @@ String renderShell({
     'urlEn': config.url(ShellLocale.en),
     'urlPt': config.url(ShellLocale.pt),
     'ogImage': '${config.origin}/og-image.png',
+    'ogImageAlt': escapeHtml(text(arb, 'metaImageAlt')),
     'ogLocale': locale.ogLocale,
     'ogLocaleAlt': locale.other.ogLocale,
     'jsonLd': jsonLd,
