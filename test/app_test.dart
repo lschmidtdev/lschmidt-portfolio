@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +9,9 @@ import 'package:lschmidt_portfolio/app.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/config/site_config.dart';
 import 'package:lschmidt_portfolio/data/repositories/web3forms_contact_repository.dart';
+import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
+import 'package:lschmidt_portfolio/domain/entities/portfolio_content.dart';
+import 'package:lschmidt_portfolio/domain/repositories/portfolio_repository.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
@@ -28,6 +34,12 @@ ScrollableState _pageScrollable(WidgetTester tester) =>
           )
           .first,
     );
+
+class _PendingRepository implements PortfolioRepository {
+  @override
+  Future<PortfolioContent> load(AppLocale locale) =>
+      Completer<PortfolioContent>().future;
+}
 
 void main() {
   testWidgets('shows the header and the hero from the loaded content', (
@@ -52,6 +64,52 @@ void main() {
     expect(find.text('Lucas\nSchmidt'), findsOneWidget);
     final mail = tester.widget<LsButton>(find.byType(LsButton));
     expect(mail.href, SiteConfig.mailto);
+  });
+
+  testWidgets('hides the footer while the content is loading', (tester) async {
+    await tester.pumpWidget(App(repository: _PendingRepository()));
+    await tester.pump();
+
+    expect(find.byType(SiteFooter), findsNothing);
+  });
+
+  testWidgets('the default contact wiring sends the configured access key', (
+    tester,
+  ) async {
+    final bodies = <String>[];
+    await tester.pumpWidget(
+      App(
+        repository: FakePortfolioRepository(),
+        httpClient: MockClient((request) async {
+          bodies.add(request.body);
+          return http.Response('{"success":true}', 200);
+        }),
+      ),
+    );
+    await tester.pumpAndSettle();
+    Finder field(String label) => find.byWidgetPredicate(
+      (w) => w is TextField && w.decoration?.labelText == label,
+    );
+    await tester.ensureVisible(field('Name'));
+    await tester.pumpAndSettle();
+    await tester.enterText(field('Name'), 'Ana Recruiter');
+    await tester.enterText(field('Email'), 'ana@example.com');
+    await tester.enterText(
+      field('Message'),
+      'We have a remote Flutter role for you.',
+    );
+    await tester.ensureVisible(find.text('Send message'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Send message'));
+    await tester.pumpAndSettle();
+
+    if (SiteConfig.web3formsKey.isEmpty) {
+      expect(bodies, isEmpty);
+    } else {
+      expect(bodies, hasLength(1));
+      expect(jsonDecode(bodies.single)['access_key'], SiteConfig.web3formsKey);
+    }
   });
 
   testWidgets('keeps the footer when the content fails', (tester) async {

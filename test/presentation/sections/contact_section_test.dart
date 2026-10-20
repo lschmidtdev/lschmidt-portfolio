@@ -188,13 +188,57 @@ void main() {
     await _fillValid(tester);
 
     await _tapSend(tester);
-    expect(find.text('Sending…'), findsWidgets);
-    await tester.tap(find.text('Sending…').first, warnIfMissed: false);
+    expect(find.text('Sending…'), findsOneWidget);
+    await tester.tap(find.text('Send message'), warnIfMissed: false);
     await tester.pump();
     gate.complete();
     await tester.pumpAndSettle();
 
     expect(repository.sent, hasLength(1));
+  });
+
+  testWidgets('sending is announced once, by the status text only', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final gate = Completer<void>();
+    await _pump(tester, _Repository(gate: gate));
+    await _fillValid(tester);
+
+    await _tapSend(tester);
+
+    expect(find.bySemanticsLabel('Sending…'), findsOneWidget);
+    gate.complete();
+    await tester.pumpAndSettle();
+    handle.dispose();
+  });
+
+  testWidgets('moves focus to the sent heading', (tester) async {
+    await _pump(tester, _Repository());
+    await _fillValid(tester);
+
+    await _tapSend(tester);
+    await tester.pumpAndSettle();
+
+    final focus = FocusManager.instance.primaryFocus!;
+    expect(
+      find.descendant(
+        of: find.byWidget(focus.context!.widget),
+        matching: find.text('Message sent.'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('the minimum length is part of the validation message', (
+    tester,
+  ) async {
+    await _pump(tester, _Repository());
+    await tester.enterText(_field('Message'), 'short');
+
+    await _tapSend(tester);
+
+    expect(find.text('Please write at least 10 characters.'), findsOneWidget);
   });
 
   testWidgets('a failure keeps the text and offers the mailto fallback', (

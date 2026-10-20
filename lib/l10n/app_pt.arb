@@ -41,7 +41,7 @@
   "contactMessageLabel": "Mensagem",
   "contactErrorNameRequired": "Informe seu nome.",
   "contactErrorEmailInvalid": "Informe um email válido.",
-  "contactErrorMessageTooShort": "Escreva pelo menos 10 caracteres.",
+  "contactErrorMessageTooShort": "Escreva pelo menos {count} caracteres.",
   "contactSend": "Enviar mensagem",
   "contactSending": "Enviando…",
   "contactSentTitle": "Mensagem enviada.",

@@ -347,8 +347,8 @@ abstract class AppLocalizations {
   /// Validation error for a short message
   ///
   /// In en, this message translates to:
-  /// **'Please write at least 10 characters.'**
-  String get contactErrorMessageTooShort;
+  /// **'Please write at least {count} characters.'**
+  String contactErrorMessageTooShort(int count);
 
   /// Submit button of the contact form
   ///

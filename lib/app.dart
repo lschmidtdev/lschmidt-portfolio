@@ -27,12 +27,14 @@ class App extends StatefulWidget {
     this.initialLocation = '/',
     this.repository,
     this.contactRepository,
+    this.httpClient,
     this.reducedMotion,
   });
 
   final String initialLocation;
   final PortfolioRepository? repository;
   final ContactRepository? contactRepository;
+  final http.Client? httpClient;
   final ValueListenable<bool>? reducedMotion;
 
   @override
@@ -45,11 +47,14 @@ class _AppState extends State<App> {
   );
   late final PortfolioRepository _repository =
       widget.repository ?? AssetPortfolioRepository(rootBundle);
-  late final http.Client _httpClient = http.Client();
+  late final http.Client? _ownedClient =
+      widget.contactRepository == null && widget.httpClient == null
+      ? http.Client()
+      : null;
   late final ContactRepository _contactRepository =
       widget.contactRepository ??
       Web3FormsContactRepository(
-        _httpClient,
+        widget.httpClient ?? _ownedClient!,
         accessKey: SiteConfig.web3formsKey,
       );
   late final ValueListenable<bool> _reducedMotion =
@@ -58,7 +63,7 @@ class _AppState extends State<App> {
   @override
   void dispose() {
     _router.dispose();
-    _httpClient.close();
+    _ownedClient?.close();
     super.dispose();
   }
 

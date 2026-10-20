@@ -140,7 +140,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get contactErrorEmailInvalid => 'Informe um email válido.';
 
   @override
-  String get contactErrorMessageTooShort => 'Escreva pelo menos 10 caracteres.';
+  String contactErrorMessageTooShort(int count) {
+    return 'Escreva pelo menos $count caracteres.';
+  }
 
   @override
   String get contactSend => 'Enviar mensagem';

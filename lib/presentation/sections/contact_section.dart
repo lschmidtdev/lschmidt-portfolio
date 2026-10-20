@@ -113,10 +113,10 @@ class _Intro extends StatelessWidget {
     final colors = LsColors.of(context);
     final l10n = AppLocalizations.of(context);
     final width = MediaQuery.sizeOf(context).width;
-    final size = (width * 0.07).clamp(40.0, sideBySide ? 64.0 : 80.0);
+    final size = (width * 0.07).clamp(44.0, sideBySide ? 64.0 : 80.0);
     final headingStyle = LsType.h2.copyWith(
       fontSize: size,
-      height: 1.02,
+      height: 0.98,
       letterSpacing: -0.04 * size,
       color: colors.fg,
     );
@@ -196,8 +196,29 @@ class _ContactForm extends StatelessWidget {
       );
 }
 
-class _Sent extends StatelessWidget {
+class _Sent extends StatefulWidget {
   const _Sent();
+
+  @override
+  State<_Sent> createState() => _SentState();
+}
+
+class _SentState extends State<_Sent> {
+  final _heading = FocusNode(skipTraversal: true);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _heading.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _heading.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,9 +233,15 @@ class _Sent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.contactSentTitle,
-                style: LsType.h3.copyWith(color: colors.fg),
+              Focus(
+                focusNode: _heading,
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    l10n.contactSentTitle,
+                    style: LsType.h3.copyWith(color: colors.fg),
+                  ),
+                ),
               ),
               const SizedBox(height: LsSpacing.s3),
               Text(
@@ -279,7 +306,9 @@ class _FieldsState extends State<_Fields> {
         null => null,
         ContactFieldError.nameRequired => l10n.contactErrorNameRequired,
         ContactFieldError.emailInvalid => l10n.contactErrorEmailInvalid,
-        ContactFieldError.messageTooShort => l10n.contactErrorMessageTooShort,
+        ContactFieldError.messageTooShort => l10n.contactErrorMessageTooShort(
+          ValidateContact.minMessageLength,
+        ),
       };
 
   void _submit() {
@@ -386,7 +415,6 @@ class _FieldsState extends State<_Fields> {
                   child: TextField(
                     key: ContactSection.honeypotKey,
                     controller: _honeypot,
-                    autofillHints: const [AutofillHints.url],
                   ),
                 ),
               ),
@@ -407,7 +435,7 @@ class _FieldsState extends State<_Fields> {
             Align(
               alignment: Alignment.centerLeft,
               child: LsButton.primary(
-                label: sending ? l10n.contactSending : l10n.contactSend,
+                label: l10n.contactSend,
                 onPressed: sending ? null : _submit,
               ),
             ),

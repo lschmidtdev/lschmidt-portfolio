@@ -99,8 +99,11 @@
   "@contactErrorNameRequired": { "description": "Validation error for an empty name" },
   "contactErrorEmailInvalid": "Please enter a valid email address.",
   "@contactErrorEmailInvalid": { "description": "Validation error for an invalid email" },
-  "contactErrorMessageTooShort": "Please write at least 10 characters.",
-  "@contactErrorMessageTooShort": { "description": "Validation error for a short message" },
+  "contactErrorMessageTooShort": "Please write at least {count} characters.",
+  "@contactErrorMessageTooShort": {
+    "description": "Validation error for a short message",
+    "placeholders": { "count": { "type": "int" } }
+  },
   "contactSend": "Send message",
   "@contactSend": { "description": "Submit button of the contact form" },
   "contactSending": "Sending…",
