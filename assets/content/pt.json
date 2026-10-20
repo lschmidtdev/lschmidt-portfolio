@@ -28,6 +28,7 @@
       "stats": [],
       "footnote": null,
       "playStoreUrl": null,
+      "headlineStats": false,
       "featured": true
     },
     {
@@ -43,6 +44,7 @@
       ],
       "footnote": null,
       "playStoreUrl": null,
+      "headlineStats": true,
       "featured": false
     },
     {
@@ -59,6 +61,7 @@
       ],
       "footnote": null,
       "playStoreUrl": null,
+      "headlineStats": false,
       "featured": false
     },
     {
@@ -71,6 +74,7 @@
       "stats": [],
       "footnote": "Lançado em jan 2025 · Google Play & App Store",
       "playStoreUrl": null,
+      "headlineStats": false,
       "featured": false
     },
     {
@@ -83,6 +87,7 @@
       "stats": [],
       "footnote": "Espera no upload: até 5 min → no máximo 1 min",
       "playStoreUrl": null,
+      "headlineStats": false,
       "featured": false
     }
   ],

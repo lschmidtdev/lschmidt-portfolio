@@ -9,6 +9,7 @@ class Project {
     required this.summary,
     required this.tags,
     required this.stats,
+    required this.headlineStats,
     required this.featured,
     this.footnote,
     this.playStoreUrl,
@@ -30,6 +31,7 @@ class Project {
       ),
       footnote: json['footnote'] as String?,
       playStoreUrl: playStoreUrl == null ? null : Uri.parse(playStoreUrl),
+      headlineStats: json['headlineStats'] as bool,
       featured: json['featured'] as bool,
     );
   }
@@ -43,5 +45,6 @@ class Project {
   final List<Metric> stats;
   final String? footnote;
   final Uri? playStoreUrl;
+  final bool headlineStats;
   final bool featured;
 }

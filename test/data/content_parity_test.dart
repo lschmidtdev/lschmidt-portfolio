@@ -41,6 +41,7 @@ void main() {
       ('projects', 'id'),
       ('projects', 'index'),
       ('projects', 'featured'),
+      ('projects', 'headlineStats'),
       ('projects', 'playStoreUrl'),
       ('roles', 'current'),
     ]) {

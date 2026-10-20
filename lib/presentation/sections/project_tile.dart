@@ -17,7 +17,6 @@ class ProjectTile extends StatefulWidget {
   static const gap = 18.0;
   static const splitWidth = 600.0;
   static const phonePanelMinHeight = 420.0;
-  static const headlineStatCount = 2;
 
   final Project project;
   final double width;
@@ -153,7 +152,8 @@ class _Copy extends StatelessWidget {
     final footnote = project.footnote;
     final playStoreUrl = project.playStoreUrl;
     final parts = <Widget>[
-      if (project.stats.isNotEmpty) _Stats(stats: project.stats),
+      if (project.stats.isNotEmpty)
+        _Stats(stats: project.stats, headline: project.headlineStats),
       if (footnote != null)
         Container(
           width: double.infinity,
@@ -169,7 +169,7 @@ class _Copy extends StatelessWidget {
       if (playStoreUrl != null)
         Align(
           alignment: Alignment.centerLeft,
-          child: LsButton.primary(
+          child: LsButton.inverse(
             label: AppLocalizations.of(context).workPlayStore,
             icon: Icons.play_arrow_outlined,
             href: playStoreUrl,
@@ -215,14 +215,14 @@ class _Tags extends StatelessWidget {
 }
 
 class _Stats extends StatelessWidget {
-  const _Stats({required this.stats});
+  const _Stats({required this.stats, required this.headline});
 
   final List<Metric> stats;
+  final bool headline;
 
   @override
   Widget build(BuildContext context) {
     final colors = LsColors.of(context);
-    final headline = stats.length <= ProjectTile.headlineStatCount;
     final inset = headline ? 16.0 : 12.0;
     return DecoratedBox(
       decoration: BoxDecoration(

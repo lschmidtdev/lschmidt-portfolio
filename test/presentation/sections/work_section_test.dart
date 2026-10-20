@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
+import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/phone_frame.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
@@ -34,6 +35,7 @@ List<Project> _projects(AppLocale locale, {Uri? playUrl}) => [
             tags: project.tags,
             stats: project.stats,
             featured: project.featured,
+            headlineStats: project.headlineStats,
             footnote: project.footnote,
             playStoreUrl: playUrl,
           )
@@ -143,6 +145,56 @@ void main() {
       tester.widget<Text>(find.text('10K+')).style?.color,
       LsColors.dark.accent,
     );
+  });
+
+  testWidgets('compact stats use fg and mono', (tester) async {
+    await tester.pumpLs(_work(_projects(AppLocale.en)));
+
+    final style = tester.widget<Text>(find.text('0.96s')).style;
+    expect(style?.color, LsColors.dark.fg);
+    expect(style?.fontFamily, LsFonts.mono);
+  });
+
+  testWidgets('the headline flag, not the stat count, picks the style', (
+    tester,
+  ) async {
+    final base = FakePortfolioRepository.contentFor(
+      AppLocale.en,
+    ).projects.firstWhere((p) => p.id == 'zirkon-site');
+    final flipped = Project(
+      id: base.id,
+      index: base.index,
+      eyebrow: base.eyebrow,
+      title: base.title,
+      summary: base.summary,
+      tags: base.tags,
+      stats: base.stats,
+      featured: base.featured,
+      headlineStats: true,
+    );
+    await tester.pumpLs(_work([flipped]));
+
+    expect(
+      tester.widget<Text>(find.text('0.96s')).style?.color,
+      LsColors.dark.accent,
+    );
+  });
+
+  testWidgets('the Play button fills with fg, not the accent', (tester) async {
+    await tester.pumpLs(_work(_projects(AppLocale.en, playUrl: _playUrl)));
+
+    final fill = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byType(LsButton),
+            matching: find.byType(Container),
+          ),
+        )
+        .map((c) => c.decoration)
+        .whereType<BoxDecoration>()
+        .single
+        .color;
+    expect(fill, LsColors.dark.fg);
   });
 
   testWidgets('gives the header Work link its scroll target', (tester) async {

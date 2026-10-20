@@ -5,7 +5,7 @@ import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_interactive.dart';
 import 'package:url_launcher/link.dart';
 
-enum _LsButtonVariant { primary, ghost }
+enum _LsButtonVariant { primary, inverse, ghost }
 
 class LsButton extends StatelessWidget {
   const LsButton.primary({
@@ -16,6 +16,16 @@ class LsButton extends StatelessWidget {
     this.href,
     this.target = LinkTarget.self,
   }) : _variant = _LsButtonVariant.primary,
+       assert(onPressed == null || href == null, 'Pass onPressed or href.');
+
+  const LsButton.inverse({
+    super.key,
+    required this.label,
+    this.icon,
+    this.onPressed,
+    this.href,
+    this.target = LinkTarget.self,
+  }) : _variant = _LsButtonVariant.inverse,
        assert(onPressed == null || href == null, 'Pass onPressed or href.');
 
   const LsButton.ghost({
@@ -55,8 +65,16 @@ class LsButton extends StatelessWidget {
     required bool isLink,
   }) {
     final colors = LsColors.of(context);
-    final primary = _variant == _LsButtonVariant.primary;
-    final foreground = primary ? colors.accentInk : colors.fg;
+    final filled = _variant != _LsButtonVariant.ghost;
+    final fill = _variant == _LsButtonVariant.primary
+        ? colors.accent
+        : colors.fg;
+    final foreground = switch (_variant) {
+      _LsButtonVariant.primary => colors.accentInk,
+      _LsButtonVariant.inverse => colors.bg,
+      _LsButtonVariant.ghost => colors.fg,
+    };
+    final horizontal = _variant == _LsButtonVariant.inverse ? 20.0 : 22.0;
     return MergeSemantics(
       child: Semantics(
         button: !isLink,
@@ -67,18 +85,18 @@ class LsButton extends StatelessWidget {
           builder: (context, hovered, focused) => LsFocusRing(
             visible: focused,
             child: Opacity(
-              opacity: primary && hovered ? 0.88 : 1,
+              opacity: filled && hovered ? 0.88 : 1,
               child: Container(
                 constraints: const BoxConstraints(
                   minHeight: LsSpacing.minTarget,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontal,
                   vertical: LsSpacing.s3,
                 ),
                 decoration: BoxDecoration(
-                  color: primary ? colors.accent : null,
-                  border: primary
+                  color: filled ? fill : null,
+                  border: filled
                       ? null
                       : Border.all(color: hovered ? colors.fg2 : colors.line),
                 ),
