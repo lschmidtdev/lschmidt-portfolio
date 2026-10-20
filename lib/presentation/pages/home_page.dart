@@ -9,9 +9,12 @@ import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/content_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/locale_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
+import 'package:lschmidt_portfolio/presentation/sections/experience_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/hero.dart';
 import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
+import 'package:lschmidt_portfolio/presentation/sections/site_footer.dart';
 import 'package:lschmidt_portfolio/presentation/sections/site_header.dart';
+import 'package:lschmidt_portfolio/presentation/sections/skills_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 
 class HomePage extends StatefulWidget {
@@ -65,6 +68,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                         ResultsStrip(metrics: content.metrics),
                         WorkSection(projects: content.projects),
+                        ExperienceSection(roles: content.roles),
+                        SkillsSection(
+                          groups: content.skillGroups,
+                          education: content.education,
+                          languages: content.languages,
+                        ),
+                        const SiteFooter(),
                       ],
                     ),
                     ContentError() => const _ContentUnavailable(),

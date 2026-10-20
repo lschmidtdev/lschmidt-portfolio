@@ -4,7 +4,12 @@ import 'package:lschmidt_portfolio/app.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/config/site_config.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
+import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
+import 'package:lschmidt_portfolio/presentation/sections/experience_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/project_tile.dart';
+import 'package:lschmidt_portfolio/presentation/sections/site_footer.dart';
+import 'package:lschmidt_portfolio/presentation/sections/skills_section.dart';
+import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,6 +71,43 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(scrollable.position.pixels, greaterThan(0));
+  });
+
+  for (final (label, id) in [
+    ('EXPERIENCE', SectionId.experience),
+    ('SKILLS', SectionId.skills),
+  ]) {
+    testWidgets('the $label link scrolls to its section', (tester) async {
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+      final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+      final key = id.keyIn(tester.element(find.byType(Scaffold)));
+      expect(key.currentContext, isNotNull);
+
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
+
+      expect(scrollable.position.pixels, greaterThan(0));
+      expect(tester.getTopLeft(find.byKey(key)).dy, closeTo(0, 1));
+    });
+  }
+
+  testWidgets('shows experience, skills and the footer in design order', (
+    tester,
+  ) async {
+    await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+    await tester.pumpAndSettle();
+
+    final tops = [
+      for (final type in [
+        WorkSection,
+        ExperienceSection,
+        SkillsSection,
+        SiteFooter,
+      ])
+        tester.getTopLeft(find.byType(type, skipOffstage: false)).dy,
+    ];
+    expect(tops, [...tops]..sort());
   });
 
   testWidgets('switching the language keeps a single work section', (

@@ -20,5 +20,13 @@
   "resultsLabel": "Resultados em destaque",
   "workTitle": "Trabalhos selecionados",
   "workCount": "{count} projetos · 2023 — 2026",
-  "workPlayStore": "Disponível no Google Play"
+  "workPlayStore": "Disponível no Google Play",
+  "experienceTitle": "Experiência",
+  "experienceRange": "2021 — atual",
+  "skillsTitle": "Habilidades",
+  "skillsEducation": "Formação",
+  "skillsLanguages": "Idiomas",
+  "footerCopyright": "© 2026 {name}",
+  "footerBuilt": "Feito com Flutter Web",
+  "footerCvUpdated": "CV atualizado em {date}"
 }

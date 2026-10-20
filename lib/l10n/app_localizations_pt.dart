@@ -74,4 +74,32 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get workPlayStore => 'Disponível no Google Play';
+
+  @override
+  String get experienceTitle => 'Experiência';
+
+  @override
+  String get experienceRange => '2021 — atual';
+
+  @override
+  String get skillsTitle => 'Habilidades';
+
+  @override
+  String get skillsEducation => 'Formação';
+
+  @override
+  String get skillsLanguages => 'Idiomas';
+
+  @override
+  String footerCopyright(String name) {
+    return '© 2026 $name';
+  }
+
+  @override
+  String get footerBuilt => 'Feito com Flutter Web';
+
+  @override
+  String footerCvUpdated(String date) {
+    return 'CV atualizado em $date';
+  }
 }

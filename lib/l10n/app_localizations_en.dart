@@ -74,4 +74,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workPlayStore => 'Get it on Google Play';
+
+  @override
+  String get experienceTitle => 'Experience';
+
+  @override
+  String get experienceRange => '2021 — now';
+
+  @override
+  String get skillsTitle => 'Skills';
+
+  @override
+  String get skillsEducation => 'Education';
+
+  @override
+  String get skillsLanguages => 'Languages';
+
+  @override
+  String footerCopyright(String name) {
+    return '© 2026 $name';
+  }
+
+  @override
+  String get footerBuilt => 'Built with Flutter Web';
+
+  @override
+  String footerCvUpdated(String date) {
+    return 'CV updated $date';
+  }
 }

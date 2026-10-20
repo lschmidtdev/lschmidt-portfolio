@@ -52,5 +52,27 @@
     "placeholders": { "count": { "type": "String" } }
   },
   "workPlayStore": "Get it on Google Play",
-  "@workPlayStore": { "description": "Button linking to the Play Store listing of a project" }
+  "@workPlayStore": { "description": "Button linking to the Play Store listing of a project" },
+  "experienceTitle": "Experience",
+  "@experienceTitle": { "description": "Heading of the Experience section" },
+  "experienceRange": "2021 — now",
+  "@experienceRange": { "description": "Period shown next to the Experience heading" },
+  "skillsTitle": "Skills",
+  "@skillsTitle": { "description": "Heading of the Skills section" },
+  "skillsEducation": "Education",
+  "@skillsEducation": { "description": "Label of the education line under the skill groups" },
+  "skillsLanguages": "Languages",
+  "@skillsLanguages": { "description": "Label of the languages line under the skill groups" },
+  "footerCopyright": "© 2026 {name}",
+  "@footerCopyright": {
+    "description": "Copyright line of the footer",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "footerBuilt": "Built with Flutter Web",
+  "@footerBuilt": { "description": "Footer note about the technology" },
+  "footerCvUpdated": "CV updated {date}",
+  "@footerCvUpdated": {
+    "description": "Footer note with the date the CV was last updated",
+    "placeholders": { "date": { "type": "String" } }
+  }
 }

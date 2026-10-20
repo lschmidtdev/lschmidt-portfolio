@@ -223,6 +223,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get it on Google Play'**
   String get workPlayStore;
+
+  /// Heading of the Experience section
+  ///
+  /// In en, this message translates to:
+  /// **'Experience'**
+  String get experienceTitle;
+
+  /// Period shown next to the Experience heading
+  ///
+  /// In en, this message translates to:
+  /// **'2021 — now'**
+  String get experienceRange;
+
+  /// Heading of the Skills section
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get skillsTitle;
+
+  /// Label of the education line under the skill groups
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get skillsEducation;
+
+  /// Label of the languages line under the skill groups
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get skillsLanguages;
+
+  /// Copyright line of the footer
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 {name}'**
+  String footerCopyright(String name);
+
+  /// Footer note about the technology
+  ///
+  /// In en, this message translates to:
+  /// **'Built with Flutter Web'**
+  String get footerBuilt;
+
+  /// Footer note with the date the CV was last updated
+  ///
+  /// In en, this message translates to:
+  /// **'CV updated {date}'**
+  String footerCvUpdated(String date);
 }
 
 class _AppLocalizationsDelegate

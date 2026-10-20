@@ -164,6 +164,20 @@ abstract final class LsType {
     fontWeight: FontWeight.w400,
   );
 
+  static const roleCompany = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 20,
+    height: 1.2,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.01 * 20,
+  );
+  static const skillItems = TextStyle(
+    fontFamily: LsFonts.sans,
+    fontSize: 16,
+    height: 1.8,
+    fontWeight: FontWeight.w400,
+  );
+
   static TextStyle h2For(double width) {
     final size = (width * 0.04).clamp(32.0, 48.0);
     return h2.copyWith(fontSize: size, letterSpacing: -0.03 * size);
