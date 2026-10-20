@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:lschmidt_portfolio/app.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/config/site_config.dart';
+import 'package:lschmidt_portfolio/data/repositories/web3forms_contact_repository.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
@@ -182,7 +185,19 @@ void main() {
   testWidgets('without an access key the form fails with the mailto fallback', (
     tester,
   ) async {
-    await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+    var requests = 0;
+    await tester.pumpWidget(
+      App(
+        repository: FakePortfolioRepository(),
+        contactRepository: Web3FormsContactRepository(
+          MockClient((_) async {
+            requests++;
+            return http.Response('{"success":true}', 200);
+          }),
+          accessKey: '',
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     Finder field(String label) => find.byWidgetPredicate(
       (w) => w is TextField && w.decoration?.labelText == label,
@@ -201,7 +216,7 @@ void main() {
     await tester.tap(find.text('Send message'));
     await tester.pumpAndSettle();
 
-    expect(SiteConfig.web3formsKey, isEmpty);
+    expect(requests, 0);
     expect(find.textContaining('could not be sent'), findsOneWidget);
     expect(find.text('EMAIL ME DIRECTLY'), findsOneWidget);
   });
