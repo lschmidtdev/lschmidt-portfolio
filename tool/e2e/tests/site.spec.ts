@@ -29,6 +29,10 @@ for (const { name, width, height } of viewports) {
         ).toBe(lang);
         await page.locator('flt-semantics-placeholder').dispatchEvent('click');
         await expect(page.getByText('Lucas Schmidt').first()).toBeVisible();
+        await expect(page.locator('html')).toHaveAttribute('lang', lang);
+        await page.waitForTimeout(1_000);
+        await expect(page.locator('html')).toHaveAttribute('lang', lang);
+        await expect(page.getByText('Lucas Schmidt').first()).toBeVisible();
         expect(paths).toContain('/main.dart.wasm');
         expect(paths.some((p) => p.endsWith('/skwasm.wasm'))).toBe(true);
         expect(paths).not.toContain('/main.dart.js');
