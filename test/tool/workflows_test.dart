@@ -177,11 +177,24 @@ void main() {
       final run = deploy['run'] as String;
       expect(
         run,
-        contains(
-          r'"$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" --expect-indexable',
-        ),
+        contains(r'"$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" "$expect"'),
       );
       expect(run.indexOf('esac'), lessThan(run.indexOf('smoke')));
+    });
+
+    test('only live expects an indexable site, next expects noindex', () {
+      final run = deploy['run'] as String;
+      final live = run.substring(run.indexOf('live)'), run.indexOf('next)'));
+      final next = run.substring(run.indexOf('next)'), run.indexOf('*)'));
+      expect(live, contains('expect=--expect-indexable'));
+      expect(live, isNot(contains('--expect-noindex')));
+      expect(next, contains('expect=--expect-noindex'));
+      expect(next, isNot(contains('--expect-indexable')));
+      expect(
+        RegExp('--expect-indexable').allMatches(run).length +
+            RegExp('--expect-noindex').allMatches(run).length,
+        2,
+      );
     });
 
     test('compiles the smoke test before cloud login', () {
