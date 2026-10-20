@@ -18,6 +18,8 @@ class SiteHeader extends StatelessWidget {
     required this.onToggleTheme,
   });
 
+  static const headerPadding = 18.0;
+
   final AppLocale locale;
   final ValueChanged<AppLocale> onLocaleSelected;
   final VoidCallback onToggleTheme;
@@ -45,7 +47,7 @@ class SiteHeader extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: gutter,
-          vertical: LsSpacing.s2,
+          vertical: headerPadding,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -65,6 +67,7 @@ class SiteHeader extends StatelessWidget {
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 28,
+                      runSpacing: LsSpacing.s2,
                       children: [
                         LsLink(
                           label: l10n.navWork,
