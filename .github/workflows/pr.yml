@@ -1,0 +1,96 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  workflow-lint:
+    name: workflow-lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f git /repo --config /repo/.gitleaks.toml --redact --verbose
+
+  verify:
+    uses: ./.github/workflows/_verify.yml
+    with:
+      sha: ${{ github.sha }}
+
+  preview:
+    name: preview
+    needs: verify
+    if: >-
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: preview
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      FIREBASE_PROJECT: ${{ vars.FIREBASE_PROJECT }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-build
+          path: build/web
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: tool/e2e/.nvmrc
+          cache: npm
+          cache-dependency-path: tool/e2e/package-lock.json
+      - name: Install Firebase CLI (locked)
+        working-directory: tool/e2e
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+      - name: Deploy preview channel
+        id: deploy
+        run: |
+          tool/e2e/node_modules/.bin/firebase hosting:channel:deploy "pr-$PR_NUMBER" \
+            --only site --project "$FIREBASE_PROJECT" --expires 7d --json > deploy.json
+          cat deploy.json
+          echo "url=$(jq -r '.result | to_entries[0].value.url' deploy.json)" >> "$GITHUB_OUTPUT"
+      - uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: preview
+          message: |
+            **Preview:** ${{ steps.deploy.outputs.url }}
+
+            Commit `${{ env.HEAD_SHA }}` · expires in 7 days

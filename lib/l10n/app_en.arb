@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "metaTitle": "Lucas Schmidt — Mobile Engineer (Flutter)",
+  "@metaTitle": {
+    "description": "Page title and social title of the shell (HTML title, og:title)"
+  },
+  "metaDescription": "Mobile engineer building production Flutter apps since 2020. Open to remote roles.",
+  "@metaDescription": {
+    "description": "Meta description and social description of the shell, at most 160 characters"
+  },
+  "fallbackTitle": "Lucas Schmidt, Mobile Engineer (Flutter)",
+  "@fallbackTitle": {
+    "description": "Heading of the no-JavaScript fallback"
+  },
+  "fallbackBody": "I build production Flutter apps and I am open to remote roles. This page needs JavaScript to load; you can reach me at lschmidt.dev@gmail.com.",
+  "@fallbackBody": {
+    "description": "Text of the no-JavaScript fallback, includes the email address"
+  }
+}

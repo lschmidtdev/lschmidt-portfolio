@@ -1,0 +1,6 @@
+tags:
+  golden:
+    description: Golden (screenshot) tests from alchemist.
+  render:
+    description: Renders web/ images (OG image, icons). Skipped in normal runs.
+    skip: Renders web/ assets; run with --run-skipped --tags render.

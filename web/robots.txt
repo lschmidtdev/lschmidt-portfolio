@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lschmidt.tech/sitemap.xml
