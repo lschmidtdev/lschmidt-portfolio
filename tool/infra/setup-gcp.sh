@@ -16,7 +16,7 @@ if ! gcloud projects describe "$PROJECT" >/dev/null 2>&1; then
   exit 1
 fi
 bash "$here/gcp-preflight.sh" "$PROJECT"
-number=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
+number=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)' | tr -d '\r')
 
 gcloud services enable iam.googleapis.com iamcredentials.googleapis.com \
   sts.googleapis.com firebasehosting.googleapis.com --project "$PROJECT"

@@ -9,21 +9,32 @@ String? _bash() {
 }
 
 const _fakeGcloud = r'''#!/usr/bin/env bash
+emit() {
+  if [[ -n ${FAKE_CRLF:-} ]]; then
+    printf '%s\n' "$1" | sed 's/$/\r/'
+  else
+    printf '%s\n' "$1"
+  fi
+}
 [[ -n ${FAKE_WARNING:-} ]] && echo "$FAKE_WARNING" >&2
 case "$1 $2" in
   "projects describe")
     [[ -n ${FAKE_NO_PROJECT:-} ]] && { echo "NOT_FOUND" >&2; exit 1; }
-    printf '%s\n' "$3" ;;
+    emit "$3" ;;
   "iam service-accounts")
     case "$3" in
       list)
         [[ -n ${FAKE_LIST_ERROR:-} ]] && { echo "$FAKE_LIST_ERROR" >&2; exit 1; }
-        printf '%s\n' "${FAKE_ACCOUNTS:-}" ;;
+        emit "${FAKE_ACCOUNTS:-}" ;;
       keys)
         account=""
         for ((i = 1; i <= $#; i++)); do
           [[ ${!i} == --iam-account ]] && { j=$((i + 1)); account=${!j}; }
         done
+        if [[ $account == *$'\r'* ]]; then
+          echo "ERROR: INVALID_ARGUMENT: Unknown error: invalid account" >&2
+          exit 1
+        fi
         case " ${FAKE_KEYED:-} " in
           *" $account "*) printf 'keys/abc123\n' ;;
         esac ;;
@@ -113,6 +124,15 @@ void main() {
     final r = await preflight({'FAKE_WARNING': 'WARNING: Updates available'});
     expect(r.exitCode, 0, reason: '${r.stderr}');
     expect(r.stdout, isNot(contains('WARNING')));
+  }, skip: noBash);
+
+  test('handles CRLF output from gcloud on Windows', () async {
+    final r = await preflight({
+      'FAKE_CRLF': '1',
+      'FAKE_ACCOUNTS': '$_adminSdk\n$_deployer',
+    });
+    expect(r.exitCode, 0, reason: '${r.stderr}');
+    expect(r.stderr, isNot(contains('invalid account')));
   }, skip: noBash);
 
   test('setup-gcp.sh runs the pre-flight before any change', () {

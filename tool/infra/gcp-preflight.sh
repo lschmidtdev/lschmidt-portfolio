@@ -19,7 +19,7 @@ fi
 echo "preflight: $project exists"
 
 if ! accounts=$("$gcloud" iam service-accounts list --project "$project" \
-    --format='value(email)' 2>"$errors"); then
+    --format='value(email)' 2>"$errors" | tr -d '\r'); then
   fail "cannot list the service accounts: $(<"$errors")
 Enable iam.googleapis.com in the project, then re-run."
 fi
@@ -28,7 +28,7 @@ keyed=()
 while IFS= read -r account; do
   [[ -z $account ]] && continue
   if ! keys=$("$gcloud" iam service-accounts keys list --iam-account "$account" \
-      --managed-by user --project "$project" --format='value(name)' 2>"$errors"); then
+      --managed-by user --project "$project" --format='value(name)' 2>"$errors" | tr -d '\r'); then
     fail "cannot list the keys of $account: $(<"$errors")"
   fi
   if [[ -n $keys ]]; then
