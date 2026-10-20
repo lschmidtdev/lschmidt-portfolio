@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
 import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
+import 'package:lschmidt_portfolio/core/widgets/link_activation.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_interactive.dart';
 import 'package:url_launcher/link.dart';
 
@@ -32,18 +33,8 @@ class LsLink extends StatelessWidget {
     return Link(
       uri: href,
       target: target,
-      builder: (context, followLink) => _link(
-        context,
-        followLink == null
-            ? null
-            : () {
-                try {
-                  onActivated?.call();
-                } finally {
-                  followLink();
-                }
-              },
-      ),
+      builder: (context, followLink) =>
+          _link(context, withActivation(followLink, onActivated)),
     );
   }
 

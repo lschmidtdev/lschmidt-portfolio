@@ -48,8 +48,12 @@ class ContactFormCubit extends Cubit<ContactFormState> {
       if (!isClosed) emit(ContactFailed(message));
       return;
     }
-    _analytics.track(AnalyticsEvent.contactFormSent);
     if (!isClosed) emit(const ContactSent());
+    try {
+      _analytics.track(AnalyticsEvent.contactFormSent);
+    } on Object {
+      return;
+    }
   }
 
   void reset() => emit(const ContactIdle());

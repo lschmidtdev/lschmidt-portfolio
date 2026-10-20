@@ -102,6 +102,7 @@ String renderShell({
 String analyticsTag(ShellConfig config) => config.umamiWebsiteId.isEmpty
     ? ''
     : '<script defer src="${SiteConfig.umamiScriptUrl}" '
+          'data-domains="${Uri.parse(SiteConfig.siteUrl).host}" '
           'data-website-id="${escapeHtml(config.umamiWebsiteId)}"></script>';
 
 String fallbackHtml(

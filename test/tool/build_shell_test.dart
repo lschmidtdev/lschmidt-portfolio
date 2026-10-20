@@ -48,6 +48,7 @@ void main() {
           html,
           contains(
             '<script defer src="${SiteConfig.umamiScriptUrl}" '
+            'data-domains="lschmidt.tech" '
             'data-website-id="aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb"></script>',
           ),
         );

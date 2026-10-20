@@ -70,6 +70,19 @@ void main() {
       await cubit.close();
     });
 
+    test('a throwing tracker still leaves the form sent', () async {
+      repository = _Repository();
+      final cubit = ContactFormCubit(
+        repository,
+        analytics: ThrowingAnalytics(),
+      );
+
+      await cubit.submit(_message);
+
+      expect(cubit.state, isA<ContactSent>());
+      await cubit.close();
+    });
+
     test('a failed send is not tracked', () async {
       final analytics = RecordingAnalytics();
       repository = _Repository(error: const ContactSendException('down'));

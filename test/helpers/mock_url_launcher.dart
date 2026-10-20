@@ -26,8 +26,15 @@ List<String> mockUrlLauncher(WidgetTester tester) {
 Future<void> tapIgnoringLaunchErrors(WidgetTester tester, Finder finder) async {
   final done = Completer<void>();
   runZonedGuarded(
-    () => tester.tap(finder).then((_) => done.complete()),
-    (_, _) {},
+    () => tester
+        .tap(finder)
+        .then((_) => done.complete(), onError: done.completeError),
+    (error, stack) {
+      final expected =
+          error is ArgumentError &&
+          error.toString().contains('in-app web view');
+      if (!expected && !done.isCompleted) done.completeError(error, stack);
+    },
   );
   await done.future;
   await tester.pump();

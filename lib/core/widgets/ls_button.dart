@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
 import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
+import 'package:lschmidt_portfolio/core/widgets/link_activation.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_interactive.dart';
 import 'package:url_launcher/link.dart';
 
@@ -60,19 +61,11 @@ class LsButton extends StatelessWidget {
       target: target,
       builder: (context, followLink) => _button(
         context,
-        followLink == null ? null : _activate(followLink),
+        withActivation(followLink, onActivated),
         isLink: true,
       ),
     );
   }
-
-  VoidCallback _activate(VoidCallback followLink) => () {
-    try {
-      onActivated?.call();
-    } finally {
-      followLink();
-    }
-  };
 
   Widget _button(
     BuildContext context,
