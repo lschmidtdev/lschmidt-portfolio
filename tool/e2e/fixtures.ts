@@ -17,7 +17,39 @@ export async function watchErrors(page: Page): Promise<string[]> {
   return errors;
 }
 
-export const test = base.extend<{ allowedErrors: RegExp[]; errors: string[] }>({
+export const umamiScript = 'https://cloud.umami.is/**';
+export const umamiGateway = 'https://gateway.umami.is/**';
+export const web3formsApi = 'https://api.web3forms.com/**';
+
+export interface Outbound {
+  umamiGateway: string[];
+  web3forms: string[];
+}
+
+export const test = base.extend<{
+  allowedErrors: RegExp[];
+  errors: string[];
+  outbound: Outbound;
+}>({
+  outbound: [
+    async ({ page }, use) => {
+      const outbound: Outbound = { umamiGateway: [], web3forms: [] };
+      page.on('request', (r) => {
+        const host = new URL(r.url()).host;
+        if (host === 'gateway.umami.is') outbound.umamiGateway.push(r.url());
+        if (host === 'api.web3forms.com') outbound.web3forms.push(r.url());
+      });
+      await page.route(umamiScript, (route) =>
+        route.fulfill({ contentType: 'text/javascript', body: '' }),
+      );
+      await page.route(umamiGateway, (route) => route.abort());
+      await page.route(web3formsApi, (route) => route.abort());
+      await use(outbound);
+      expect(outbound.umamiGateway, 'requests to the Umami gateway').toEqual([]);
+    },
+    { auto: true },
+  ],
+
   allowedErrors: [[], { option: true }],
   errors: [
     async ({ page, allowedErrors }, use) => {
