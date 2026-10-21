@@ -16,6 +16,7 @@ import 'package:lschmidt_portfolio/domain/entities/contact_message.dart';
 import 'package:lschmidt_portfolio/domain/repositories/analytics_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/contact_repository.dart';
 import 'package:lschmidt_portfolio/domain/repositories/portfolio_repository.dart';
+import 'package:lschmidt_portfolio/presentation/cubits/locale_cubit.dart';
 import 'package:lschmidt_portfolio/presentation/cubits/theme_cubit.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
@@ -429,4 +430,51 @@ void main() {
       expectFocusInside(tester, SkillsSection);
     });
   });
+
+  testWidgets('switching the language keeps the scroll position', (
+    tester,
+  ) async {
+    await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(SkillsSection));
+    await tester.pumpAndSettle();
+    final before = _pageScrollable(tester).position.pixels;
+    expect(before, greaterThan(0));
+    expect(find.text('Skills'), findsOneWidget);
+
+    tester
+        .element(find.byType(Scaffold))
+        .read<LocaleCubit>()
+        .select(AppLocale.pt);
+    await tester.pumpAndSettle();
+
+    expect(_pageScrollable(tester).position.pixels, before);
+    expect(find.text('Habilidades'), findsOneWidget);
+    expect(find.text('Skills'), findsNothing);
+  });
+
+  for (final path in ['/', '/pt']) {
+    testWidgets('the whole page at 360 x 740 on $path has no layout errors', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(360, 740);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        App(initialLocation: path, repository: FakePortfolioRepository()),
+      );
+      await tester.pumpAndSettle();
+      final position = _pageScrollable(tester).position;
+      expect(position.maxScrollExtent, greaterThan(0));
+
+      while (position.pixels < position.maxScrollExtent) {
+        position.jumpTo(
+          (position.pixels + 500).clamp(0, position.maxScrollExtent),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: '${position.pixels}');
+      }
+      expect(find.byType(SiteFooter), findsOneWidget);
+    });
+  }
 }
