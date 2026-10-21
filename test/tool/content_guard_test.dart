@@ -13,24 +13,35 @@ String _escapePdfText(String text) => text
     .replaceAll('\u00ad', r'\202')
     .replaceAll('\u200b', r'\201');
 
-List<int> buildPdf(List<String> lines) {
+List<int> buildPdf(
+  List<String> lines, {
+  List<String> links = const [],
+  Map<String, String> info = const {},
+}) {
   final stream = StringBuffer('BT /F1 12 Tf 72 720 Td 14 TL\n');
   for (final line in lines) {
     stream.writeln('(${_escapePdfText(line)}) Tj T*');
   }
   stream.write('ET');
   final content = stream.toString();
+  final annotRefs = [for (var i = 0; i < links.length; i++) '${6 + i} 0 R'];
+  final infoRef = 6 + links.length;
   final objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] '
-        '/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+        '/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> '
+        '/Annots [${annotRefs.join(' ')}] >>',
     '<< /Length ${content.length} >>\nstream\n$content\nendstream',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
         '/Encoding << /BaseEncoding /WinAnsiEncoding '
         '/Differences [129 /uni200B /uni00AD] >> '
         '/FirstChar 32 /LastChar 255 '
         '/Widths [${List.filled(224, 556).join(' ')}] >>',
+    for (final link in links)
+      '<< /Type /Annot /Subtype /Link /Rect [72 700 300 730] '
+          '/A << /S /URI /URI (${_escapePdfText(link)}) >> >>',
+    '<< ${[for (final e in info.entries) '/${e.key} (${_escapePdfText(e.value)})'].join(' ')} >>',
   ];
   final out = StringBuffer('%PDF-1.4\n');
   final offsets = <int>[];
@@ -44,7 +55,8 @@ List<int> buildPdf(List<String> lines) {
     out.write('${offset.toString().padLeft(10, '0')} 00000 n \n');
   }
   out.write(
-    'trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n'
+    'trailer\n<< /Size ${objects.length + 1} /Root 1 0 R '
+    '/Info $infoRef 0 R >>\n'
     'startxref\n$xref\n%%EOF\n',
   );
   return latin1.encode(out.toString());
@@ -58,6 +70,33 @@ Directory pdfDir(Map<String, List<String>> files) {
   });
   return dir;
 }
+
+Directory annotatedPdfDir({
+  List<String> lines = const ['Jane Doe'],
+  List<String> links = const [],
+  Map<String, String> info = const {},
+}) {
+  final dir = Directory.systemTemp.createTempSync('content_guard_pdf_');
+  addTearDown(() => dir.deleteSync(recursive: true));
+  File(
+    '${dir.path}/cv.pdf',
+  ).writeAsBytesSync(buildPdf(lines, links: links, info: info));
+  return dir;
+}
+
+bool _toolMissing(String executable) {
+  try {
+    Process.runSync(executable, ['-v']);
+    return false;
+  } on ProcessException {
+    return true;
+  }
+}
+
+final Object _skipWithoutPdfinfo =
+    _toolMissing('pdfinfo') && !Platform.environment.containsKey('CI')
+    ? 'pdfinfo is not installed'
+    : false;
 
 void main() {
   group('findViolations', () {
@@ -201,6 +240,72 @@ void main() {
     test('does not need pdftotext when there are no PDFs', () {
       expect(
         scanPdfs(['${Directory.systemTemp.path}/none'], executable: 'nope'),
+        isEmpty,
+      );
+    });
+  });
+
+  group('scanPdfMetadata', () {
+    test('flags a mailto link when the text is clean', () {
+      final dir = annotatedPdfDir(links: ['mailto:someone@example.com']);
+      expect(scanPdfs([dir.path]), isEmpty);
+      final hits = scanPdfMetadata([dir.path]);
+      expect(hits, hasLength(1));
+      expect(hits.single, contains('cv.pdf (link on page 1)'));
+      expect(hits.single, contains('email'));
+    }, skip: _skipWithoutPdfinfo);
+
+    test('flags a percent-encoded mailto link', () {
+      final dir = annotatedPdfDir(links: ['mailto:someone%40example.com']);
+      expect(scanPdfMetadata([dir.path]), isNotEmpty);
+    }, skip: _skipWithoutPdfinfo);
+
+    test('flags any tel link', () {
+      final dir = annotatedPdfDir(links: ['tel:+15550100']);
+      final hits = scanPdfMetadata([dir.path]);
+      expect(hits, isNotEmpty);
+      expect(hits, everyElement(contains('phone link')));
+    }, skip: _skipWithoutPdfinfo);
+
+    test('flags forbidden document metadata', () {
+      final cases = {
+        'Author': 'Jane Roe someone@example.com',
+        'Title': 'Senior Flutter Developer',
+        'Subject': 'Call (11) 98765-4321',
+        'Keywords': 'flutter, freelance',
+      };
+      cases.forEach((field, value) {
+        final dir = annotatedPdfDir(info: {field: value});
+        final hits = scanPdfMetadata([dir.path]);
+        expect(hits, isNotEmpty, reason: field);
+        expect(hits, everyElement(contains('cv.pdf ($field)')), reason: field);
+      });
+    }, skip: _skipWithoutPdfinfo);
+
+    test('passes clean links and metadata', () {
+      final dir = annotatedPdfDir(
+        links: [
+          'mailto:lschmidt.dev@gmail.com',
+          'https://github.com/lschmidtdev',
+        ],
+        info: {'Author': 'Jane Doe', 'Title': 'CV', 'Keywords': 'Flutter'},
+      );
+      expect(scanPdfMetadata([dir.path]), isEmpty);
+    }, skip: _skipWithoutPdfinfo);
+
+    test('fails loudly when pdfinfo is unavailable and PDFs exist', () {
+      final dir = annotatedPdfDir();
+      expect(
+        () => scanPdfMetadata([dir.path], executable: 'no-such-pdfinfo'),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('does not need pdfinfo when there are no PDFs', () {
+      expect(
+        scanPdfMetadata([
+          '${Directory.systemTemp.path}/none',
+        ], executable: 'nope'),
         isEmpty,
       );
     });
