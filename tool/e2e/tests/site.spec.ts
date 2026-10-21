@@ -1,5 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
-import { boot, expect, test } from '../fixtures';
+import { boot, expect, expectInsideViewport, nextFrames, test } from '../fixtures';
 
 const viewports = [
   { name: '360x740', width: 360, height: 740 },
@@ -28,26 +27,6 @@ const locales = [
 
 const themes = ['dark', 'light'] as const;
 
-const nextFrames = (page: Page, count = 2) =>
-  page.evaluate(
-    (n) =>
-      new Promise<void>((resolve) => {
-        const step = (left: number) =>
-          left === 0 ? resolve() : requestAnimationFrame(() => step(left - 1));
-        step(n);
-      }),
-    count,
-  );
-
-async function expectInsideViewport(page: Page, locator: Locator): Promise<void> {
-  await expect(locator).toBeVisible();
-  const box = await locator.boundingBox();
-  const viewport = page.viewportSize()!;
-  expect(box, 'bounding box').not.toBeNull();
-  expect(box!.x).toBeGreaterThanOrEqual(0);
-  expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width + 1);
-}
-
 for (const { name, width, height } of viewports) {
   for (const { path, lang, role, email, summary, themeToggle } of locales) {
     for (const theme of themes) {
@@ -69,7 +48,12 @@ for (const { name, width, height } of viewports) {
           ).toBe(lang);
 
           if (theme === 'light') {
+            await nextFrames(page, 10);
+            const dark = await page.screenshot();
             await page.getByRole('button', { name: themeToggle }).click();
+            await expect
+              .poll(async () => (await page.screenshot()).equals(dark), { timeout: 10_000 })
+              .toBe(false);
           }
 
           const heading = page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' });
@@ -129,27 +113,52 @@ test.describe('theme toggle', () => {
   });
 });
 
-async function jumpToContact(page: Page): Promise<void> {
-  await boot(page, '/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
-  await page.getByRole('button', { name: 'Email me' }).click();
-  const contact = page.getByRole('heading', { level: 2, name: 'Hiring a Flutter engineer?' });
-  await expect
-    .poll(async () => (await contact.boundingBox())!.y, { timeout: 10_000 })
-    .toBeLessThan(844);
-}
+const scrollHost = 'flt-semantics';
 
 test.describe('reduced motion', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('shows revealed content immediately with nothing animating', async ({ page }) => {
+  test('jumps to the section and shows it fully revealed on the first frame', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await jumpToContact(page);
+    await boot(page, '/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
+    await nextFrames(page, 10);
 
-    const content = { x: 0, y: 0, width: 360, height: 844 };
+    await page.evaluate((host) => {
+      const el = [...document.querySelectorAll(host)].find(
+        (n) => getComputedStyle(n).overflowY === 'scroll',
+      )!;
+      const samples: number[] = [];
+      (window as unknown as { scrollSamples: number[] }).scrollSamples = samples;
+      const sample = () => {
+        samples.push(el.scrollTop);
+        requestAnimationFrame(sample);
+      };
+      sample();
+    }, scrollHost);
+
+    await page.getByRole('button', { name: 'Email me' }).click();
+    await page.waitForFunction(
+      (host) =>
+        [...document.querySelectorAll(host)].some(
+          (n) => getComputedStyle(n).overflowY === 'scroll' && n.scrollTop > 0,
+        ),
+      scrollHost,
+      { polling: 'raf' },
+    );
+    const viewport = page.viewportSize()!;
+    const content = { x: 0, y: 0, width: viewport.width - 30, height: viewport.height };
     const first = await page.screenshot({ clip: content });
     await nextFrames(page, 45);
     const settled = await page.screenshot({ clip: content });
+
+    const samples = await page.evaluate(
+      () => (window as unknown as { scrollSamples: number[] }).scrollSamples,
+    );
+    const moving = samples.filter((v) => v > 0);
+    expect(new Set(moving).size, 'scroll position kept changing: the jump was animated').toBe(1);
     expect(first.equals(settled), 'pixels changed after the jump: a reveal was animating').toBe(
       true,
     );

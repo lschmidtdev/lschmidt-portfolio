@@ -1,5 +1,5 @@
-import type { Page, Request } from '@playwright/test';
-import { boot, expect, test, umamiScript, web3formsApi } from '../fixtures';
+import type { Page, Request, Route } from '@playwright/test';
+import { boot, expect, expectInsideViewport, test, umamiScript, web3formsApi } from '../fixtures';
 
 const visitor = {
   name: 'Test Recruiter',
@@ -37,6 +37,21 @@ async function openContact(page: Page): Promise<void> {
   await expect(page.getByRole('textbox', { name: 'Message' })).toBeVisible();
 }
 
+const fulfillWith = (status: number, success: boolean) => (route: Route) =>
+  route.fulfill({
+    status,
+    contentType: 'application/json',
+    headers: cors,
+    body: JSON.stringify({ success }),
+  });
+
+async function expectFormInside(page: Page): Promise<void> {
+  for (const label of ['Name', 'Email', 'Company (optional)', 'Message']) {
+    await expectInsideViewport(page, form(page).getByRole('textbox', { name: label, exact: true }));
+  }
+  await expectInsideViewport(page, form(page).getByRole('button', { name: 'Send message' }));
+}
+
 test.describe('contact form', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -47,12 +62,7 @@ test.describe('contact form', () => {
     const posted: Request[] = [];
     await page.route(web3formsApi, async (route) => {
       posted.push(route.request());
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        headers: cors,
-        body: JSON.stringify({ success: true }),
-      });
+      await fulfillWith(200, true)(route);
     });
     await openContact(page);
     await fillForm(page);
@@ -85,50 +95,73 @@ test.describe('contact form', () => {
 });
 
 test.describe('contact form server error', () => {
-  test.use({ viewport: { width: 1440, height: 900 }, allowedErrors: [/status of 500/] });
+  test.use({
+    viewport: { width: 1440, height: 900 },
+    allowedErrors: [/status of 500.*@ https:\/\/api\.web3forms\.com\//],
+  });
 
-    test('a server error shows the fallback and keeps the typed message', async ({ page }) => {
-      await page.route(web3formsApi, (route) =>
-        route.fulfill({
-          status: 500,
-          contentType: 'application/json',
-          headers: cors,
-          body: JSON.stringify({ success: false }),
-        }),
-      );
-      await openContact(page);
-      await fillForm(page);
-      await page.getByRole('button', { name: 'Send message' }).click();
+  test('a server error shows the fallback and keeps the typed message', async ({ page }) => {
+    await page.route(web3formsApi, fulfillWith(500, false));
+    await openContact(page);
+    await fillForm(page);
+    await page.getByRole('button', { name: 'Send message' }).click();
 
-      await expect(form(page).getByText(/Your message could not be sent/)).toBeVisible();
-      const fallback = page.getByRole('link', { name: 'Email me directly' });
-      await expect(fallback).toBeVisible();
-      await expect(fallback).toHaveAttribute('href', /^mailto:lschmidt\.dev@gmail\.com/);
-      await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(visitor.message);
-      await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue(visitor.name);
-      await expect(page.getByRole('heading', { name: 'Message sent.' })).toHaveCount(0);
-    });
+    await expect(form(page).getByText(/Your message could not be sent/)).toBeVisible();
+    const fallback = page.getByRole('link', { name: 'Email me directly' });
+    await expect(fallback).toBeVisible();
+    await expect(fallback).toHaveAttribute('href', /^mailto:lschmidt\.dev@gmail\.com/);
+    await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(visitor.message);
+    await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue(visitor.name);
+    await expect(page.getByRole('heading', { name: 'Message sent.' })).toHaveCount(0);
+  });
+});
+
+test.describe('contact form on a 360 px phone', () => {
+  test.use({
+    viewport: { width: 360, height: 740 },
+    allowedErrors: [/status of 500.*@ https:\/\/api\.web3forms\.com\//],
+  });
+
+  test('idle state fits the viewport', async ({ page }) => {
+    await openContact(page);
+    await expectFormInside(page);
+  });
+
+  test('sent state fits the viewport', async ({ page }) => {
+    await page.route(web3formsApi, fulfillWith(200, true));
+    await openContact(page);
+    await fillForm(page);
+    await page.getByRole('button', { name: 'Send message' }).click();
+
+    const sent = page.getByRole('heading', { name: 'Message sent.' });
+    await expectInsideViewport(page, sent);
+    await expectInsideViewport(page, page.getByText('Send another message'));
+  });
+
+  test('failed state fits the viewport', async ({ page }) => {
+    await page.route(web3formsApi, fulfillWith(500, false));
+    await openContact(page);
+    await fillForm(page);
+    await page.getByRole('button', { name: 'Send message' }).click();
+
+    await expectInsideViewport(page, form(page).getByText(/Your message could not be sent/));
+    await expectInsideViewport(page, page.getByRole('link', { name: 'Email me directly' }));
+    await expectFormInside(page);
+  });
 });
 
 test.describe('analytics script blocked', () => {
-  test.use({ viewport: { width: 1440, height: 900 }, allowedErrors: [/ERR_FAILED/] });
+  test.use({
+    viewport: { width: 1440, height: 900 },
+    allowedErrors: [/ERR_FAILED.*@ https:\/\/cloud\.umami\.is\//],
+  });
 
-  test('the page still works and the form still sends', async ({ page, errors }) => {
+  test('the page still works and the form still sends', async ({ page }) => {
     await page.route(umamiScript, (route) => route.abort());
-    await page.route(web3formsApi, (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        headers: cors,
-        body: JSON.stringify({ success: true }),
-      }),
-    );
+    await page.route(web3formsApi, fulfillWith(200, true));
     await openContact(page);
     await fillForm(page);
     await page.getByRole('button', { name: 'Send message' }).click();
     await expect(page.getByRole('heading', { name: 'Message sent.' })).toBeVisible();
-
-    const unexpected = errors.filter((e) => !/ERR_FAILED/.test(e));
-    expect(unexpected).toEqual([]);
   });
 });
