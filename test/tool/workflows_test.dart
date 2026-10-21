@@ -284,6 +284,7 @@ void main() {
     expect(guard, isNonNegative);
     expect(poppler, analyze + 1);
     expect(guard, poppler + 1);
+    expect(poppler, lessThan(_stepIndex(job, (s) => s['name'] == 'Test')));
     expect(guard, lessThan(build));
     expect(_steps(job)[guard]['run'], 'dart run tool/ci/content_guard.dart');
   });

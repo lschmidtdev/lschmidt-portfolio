@@ -5,8 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../tool/ci/content_guard.dart';
 
-String _escapePdfText(String text) =>
-    text.replaceAll(r'\', r'\\').replaceAll('(', r'\(').replaceAll(')', r'\)');
+String _escapePdfText(String text) => text
+    .replaceAll(r'\', r'\\')
+    .replaceAll('(', r'\(')
+    .replaceAll(')', r'\)')
+    .replaceAll('–', r'\226');
 
 List<int> buildPdf(List<String> lines) {
   final stream = StringBuffer('BT /F1 12 Tf 72 720 Td 14 TL\n');
@@ -21,7 +24,8 @@ List<int> buildPdf(List<String> lines) {
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] '
         '/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
     '<< /Length ${content.length} >>\nstream\n$content\nendstream',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
+        '/Encoding /WinAnsiEncoding >>',
   ];
   final out = StringBuffer('%PDF-1.4\n');
   final offsets = <int>[];
@@ -155,6 +159,36 @@ void main() {
         () => scanPdfs([dir.path], executable: 'no-such-pdftotext'),
         throwsA(isA<StateError>()),
       );
+    });
+
+    test('flags contact details that the layout splits or disguises', () {
+      final cases = {
+        'wrapped number': ['Call +55 11 9', '8765-4321'],
+        'wrapped email': ['Mail someone@', 'example.com'],
+        'en-dash number': ['Call (11) 98765–4321'],
+        'wide-spaced number': ['Call (11) 98765                    4321'],
+      };
+      cases.forEach((label, lines) {
+        final dir = pdfDir({'cv.pdf': lines});
+        expect(scanPdfs([dir.path]), isNotEmpty, reason: label);
+      });
+    });
+
+    test('reports whole-text hits without a line number', () {
+      final dir = pdfDir({
+        'cv.pdf': ['Mail someone@', 'example.com'],
+      });
+      final hits = scanPdfs([dir.path]);
+      expect(hits, hasLength(1));
+      expect(
+        hits.single,
+        endsWith('cv.pdf: email address other than the site address'),
+      );
+    });
+
+    test('fails when a PDF has no extractable text', () {
+      final dir = pdfDir({'cv.pdf': []});
+      expect(() => scanPdfs([dir.path]), throwsA(isA<StateError>()));
     });
 
     test('does not need pdftotext when there are no PDFs', () {

@@ -60,6 +60,23 @@ List<String> scanPaths(Iterable<String> roots) {
   return hits;
 }
 
+String _normalizeText(String text) => text
+    .replaceAll(RegExp('[‐-―−]'), '-')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim();
+
+String _joinWrappedAddresses(String text) => text
+    .replaceAll(RegExp(r'\s*@\s*'), '@')
+    .replaceAll(RegExp(r'\s*\.\s*'), '.');
+
+List<String> _wholeTextViolations(String text) {
+  final normalized = _normalizeText(text);
+  return {
+    ...findViolations(normalized),
+    ...findViolations(_joinWrappedAddresses(normalized)),
+  }.toList();
+}
+
 List<String> scanPdfs(
   Iterable<String> roots, {
   String executable = 'pdftotext',
@@ -78,13 +95,12 @@ List<String> scanPdfs(
     for (final pdf in pdfs) {
       final ProcessResult result;
       try {
-        result = Process.runSync(executable, [
-          '-layout',
-          '-enc',
-          'UTF-8',
-          pdf.path,
-          '-',
-        ], stdoutEncoding: utf8);
+        result = Process.runSync(
+          executable,
+          ['-layout', '-enc', 'UTF-8', pdf.path, '-'],
+          stdoutEncoding: utf8,
+          stderrEncoding: utf8,
+        );
       } on ProcessException catch (e) {
         throw StateError(
           'cannot scan ${pdf.path}: $executable is not available (${e.message})',
@@ -92,14 +108,25 @@ List<String> scanPdfs(
       }
       if (result.exitCode != 0) {
         throw StateError(
-          'cannot scan ${pdf.path}: $executable exited with ${result.exitCode}',
+          'cannot scan ${pdf.path}: $executable exited with '
+          '${result.exitCode}: ${(result.stderr as String).trim()}',
         );
       }
-      final lines = (result.stdout as String).split('\n');
+      final text = result.stdout as String;
+      final name = pdf.path.replaceAll(r'\', '/');
+      if (text.trim().isEmpty) {
+        throw StateError('cannot scan $name: the PDF contains no text');
+      }
+      final lineViolations = <String>{};
+      final lines = text.split('\n');
       for (var i = 0; i < lines.length; i++) {
         for (final violation in findViolations(lines[i])) {
-          hits.add('${pdf.path.replaceAll(r'\', '/')}:${i + 1}: $violation');
+          lineViolations.add(violation);
+          hits.add('$name:${i + 1}: $violation');
         }
+      }
+      for (final violation in _wholeTextViolations(text)) {
+        if (!lineViolations.contains(violation)) hits.add('$name: $violation');
       }
     }
   }
