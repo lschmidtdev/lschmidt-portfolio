@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
@@ -44,6 +45,14 @@ Widget _page(HeroSection hero) => SingleChildScrollView(
 LsButton _button(WidgetTester tester, String label) => tester
     .widgetList<LsButton>(find.byType(LsButton))
     .firstWhere((button) => button.label == label);
+
+bool _isPrimary(WidgetTester tester, String label) {
+  final box = tester.widget<Container>(
+    find.ancestor(of: find.text(label), matching: find.byType(Container)).first,
+  );
+  final decoration = box.decoration! as BoxDecoration;
+  return decoration.color == LsColors.dark.accent;
+}
 
 void main() {
   testWidgets('shows the role, the name and the summary', (tester) async {
@@ -119,6 +128,23 @@ void main() {
         isSemantics(label: 'Download CV (PDF)', isLink: true),
       );
       handle.dispose();
+    });
+  });
+
+  group('Email me variant', () {
+    testWidgets('is the accent primary while no CV is published', (
+      tester,
+    ) async {
+      await tester.pumpLs(_page(_hero(AppLocale.en, cvAvailable: false)));
+
+      expect(_isPrimary(tester, 'Email me'), isTrue);
+    });
+
+    testWidgets('is ghost once the CV is published', (tester) async {
+      await tester.pumpLs(_page(_hero(AppLocale.en, cvAvailable: true)));
+
+      expect(_isPrimary(tester, 'Email me'), isFalse);
+      expect(_isPrimary(tester, 'Download CV (PDF)'), isTrue);
     });
   });
 

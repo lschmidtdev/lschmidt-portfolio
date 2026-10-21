@@ -138,11 +138,18 @@ class _Copy extends StatelessWidget {
                   AnalyticsEvent.cvDownload,
                 ),
               ),
-            LsButton.ghost(
-              label: l10n.heroEmailMe,
-              icon: Icons.mail_outline,
-              onPressed: () => SectionId.contact.scrollTo(context),
-            ),
+            if (cvAvailable)
+              LsButton.ghost(
+                label: l10n.heroEmailMe,
+                icon: Icons.mail_outline,
+                onPressed: () => SectionId.contact.scrollTo(context),
+              )
+            else
+              LsButton.primary(
+                label: l10n.heroEmailMe,
+                icon: Icons.mail_outline,
+                onPressed: () => SectionId.contact.scrollTo(context),
+              ),
           ],
         ),
       ],
