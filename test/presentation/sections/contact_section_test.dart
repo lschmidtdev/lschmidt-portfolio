@@ -286,7 +286,8 @@ void main() {
   testWidgets('the failed-state mailto carries the typed message', (
     tester,
   ) async {
-    await _pump(tester, _Repository(fail: true));
+    final analytics = RecordingAnalytics();
+    await _pump(tester, _Repository(fail: true), analytics: analytics);
     await _fillValid(tester);
     await _tapSend(tester);
     await tester.pumpAndSettle();
@@ -298,6 +299,8 @@ void main() {
       '&body=We%20have%20a%20remote%20Flutter%20role%20for%20you.'
       '%0A%0AAna%20Recruiter%20%C2%B7%20Acme',
     );
+    await tapIgnoringLaunchErrors(tester, find.text('EMAIL ME DIRECTLY'));
+    expect(analytics.events, [AnalyticsEvent.emailAppOpened]);
   });
 
   testWidgets('the failed-state mailto leaves out an empty company', (

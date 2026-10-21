@@ -143,18 +143,21 @@ class _Intro extends StatelessWidget {
           style: LsType.eyebrow.copyWith(color: colors.fg3),
         ),
         const SizedBox(height: LsSpacing.s6),
-        Semantics(
-          header: true,
-          label: l10n.contactHeading.replaceAll('*', ''),
-          excludeSemantics: true,
-          child: Text.rich(
-            TextSpan(
-              children: _heading(
-                l10n.contactHeading,
-                headingStyle.copyWith(color: colors.accent),
+        SectionFocus(
+          id: SectionId.contact,
+          child: Semantics(
+            header: true,
+            label: l10n.contactHeading.replaceAll('*', ''),
+            excludeSemantics: true,
+            child: Text.rich(
+              TextSpan(
+                children: _heading(
+                  l10n.contactHeading,
+                  headingStyle.copyWith(color: colors.accent),
+                ),
               ),
+              style: headingStyle,
             ),
-            style: headingStyle,
           ),
         ),
         const SizedBox(height: LsSpacing.s8),
@@ -393,7 +396,7 @@ class _FieldsState extends State<_Fields> {
           children: [
             TextFormField(
               controller: _name,
-              focusNode: SectionId.contact.focusIn(context),
+              focusNode: SectionId.contact.fieldIn(context),
               style: inputStyle,
               decoration: _decoration(context, l10n.contactNameLabel),
               autofillHints: const [AutofillHints.name],

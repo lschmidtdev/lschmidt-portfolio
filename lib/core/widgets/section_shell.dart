@@ -20,16 +20,23 @@ enum SectionId {
   FocusNode focusIn(BuildContext context) =>
       (SectionScope.maybeOf(context) ?? _fallback).focusOf(this);
 
+  FocusNode fieldIn(BuildContext context) =>
+      (SectionScope.maybeOf(context) ?? _fallback).fieldOf(this);
+
   Future<void> scrollTo(BuildContext context) async {
     final target = keyIn(context).currentContext;
     if (target == null) return;
-    final focus = focusIn(context);
+    final heading = focusIn(context);
+    final field = fieldIn(context);
     final motion = LsMotion.of(context);
     await Scrollable.ensureVisible(
       target,
       duration: motion.movement(LsMotion.reveal),
       curve: Curves.easeOut,
     );
+    final keyboard =
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    final focus = keyboard && field.context != null ? field : heading;
     if (focus.context != null) focus.requestFocus();
   }
 }
@@ -40,18 +47,21 @@ class SectionKeys {
   };
   final _focus = {
     for (final id in SectionId.values)
-      id: FocusNode(
-        debugLabel: id.name,
-        skipTraversal: id != SectionId.contact,
-      ),
+      id: FocusNode(debugLabel: id.name, skipTraversal: true),
+  };
+  final _fields = {
+    for (final id in SectionId.values)
+      id: FocusNode(debugLabel: '${id.name} field'),
   };
 
   GlobalKey operator [](SectionId id) => _keys[id]!;
 
   FocusNode focusOf(SectionId id) => _focus[id]!;
 
+  FocusNode fieldOf(SectionId id) => _fields[id]!;
+
   void dispose() {
-    for (final node in _focus.values) {
+    for (final node in [..._focus.values, ..._fields.values]) {
       node.dispose();
     }
   }

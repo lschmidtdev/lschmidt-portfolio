@@ -264,12 +264,13 @@ void main() {
 
     expect(scrollable.position.pixels, greaterThan(0));
     final top = tester.getTopLeft(find.byKey(key)).dy;
-    expect(top, inInclusiveRange(-100, 1));
+    expect(top, inInclusiveRange(-30, 1));
     final name = tester.getRect(
       find.byWidgetPredicate(
         (w) => w is TextField && w.decoration?.labelText == 'Name',
       ),
     );
+    expect(name.top, greaterThanOrEqualTo(0));
     expect(name.bottom, lessThanOrEqualTo(600));
   });
 
@@ -354,6 +355,69 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
     }
+
+    bool focusedInside(bool Function(Widget widget) test) {
+      var inside = false;
+      focusedElement().visitAncestorElements((ancestor) {
+        inside = test(ancestor.widget);
+        return !inside;
+      });
+      return inside;
+    }
+
+    testWidgets('a tap on Contact focuses the heading, not a text field', (
+      tester,
+    ) async {
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('CONTACT').first);
+      await tester.pumpAndSettle();
+
+      expect(FocusManager.instance.highlightMode, FocusHighlightMode.touch);
+      expect(focusedInside((w) => w is EditableText), isFalse);
+      expect(
+        find.descendant(
+          of: find.byElementPredicate((e) => e == focusedElement()),
+          matching: find.textContaining('Hiring a', findRichText: true),
+        ),
+        findsOneWidget,
+      );
+      expectFocusInside(tester, ContactSection);
+    });
+
+    testWidgets('Enter on Contact from the keyboard focuses the Name field', (
+      tester,
+    ) async {
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+
+      for (var i = 0; i < 5; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(
+        find.descendant(
+          of: find.byElementPredicate((e) => e == focusedElement()),
+          matching: find.text('CONTACT'),
+        ),
+        findsOneWidget,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      expect(
+        FocusManager.instance.highlightMode,
+        FocusHighlightMode.traditional,
+      );
+      expect(
+        focusedInside(
+          (w) => w is TextField && w.decoration?.labelText == 'Name',
+        ),
+        isTrue,
+      );
+      expectFocusInside(tester, ContactSection);
+    });
 
     testWidgets('the Contact link, then Tab, lands inside the form', (
       tester,

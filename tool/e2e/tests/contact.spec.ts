@@ -1,5 +1,13 @@
 import type { Page, Request, Route } from '@playwright/test';
-import { boot, expect, expectInsideViewport, test, umamiScript, web3formsApi } from '../fixtures';
+import {
+  boot,
+  expect,
+  expectInsideViewport,
+  nextFrames,
+  test,
+  umamiScript,
+  web3formsApi,
+} from '../fixtures';
 
 const visitor = {
   name: 'Test Recruiter',
@@ -35,6 +43,11 @@ async function openContact(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
   await page.getByRole('button', { name: 'Email me' }).click();
   await expect(page.getByRole('textbox', { name: 'Message' })).toBeVisible();
+  await nextFrames(page, 10);
+  expect(
+    await page.evaluate(() => ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName ?? '')),
+    'a mouse click must not focus a text field',
+  ).toBe(false);
 }
 
 const fulfillWith = (status: number, success: boolean) => (route: Route) =>
