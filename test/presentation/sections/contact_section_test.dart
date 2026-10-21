@@ -519,6 +519,45 @@ void main() {
     });
   });
 
+  for (final reduced in [true, false]) {
+    testWidgets('focusing a field below the fold '
+        '${reduced ? 'jumps to it with reduced motion' : 'animates to it'}', (
+      tester,
+    ) async {
+      await tester.pumpLs(
+        _section(_Repository()),
+        width: 390,
+        height: 500,
+        reducedMotion: reduced,
+      );
+      final scrollable = tester.state<ScrollableState>(
+        find.byType(Scrollable).first,
+      );
+      expect(scrollable.position.pixels, 0);
+      final message = tester.widget<EditableText>(
+        find.descendant(
+          of: _field('Message'),
+          matching: find.byType(EditableText),
+        ),
+      );
+
+      message.focusNode.requestFocus();
+      await tester.pump();
+      final positions = <double>[];
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        positions.add(scrollable.position.pixels);
+      }
+
+      expect(positions.last, greaterThan(0));
+      if (reduced) {
+        expect(positions.toSet(), {positions.last});
+      } else {
+        expect(positions.toSet().length, greaterThan(1));
+      }
+    });
+  }
+
   testWidgets('fields and buttons are at least 48 px tall', (tester) async {
     await _pump(tester, _Repository());
 
