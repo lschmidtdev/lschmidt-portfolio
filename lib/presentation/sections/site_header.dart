@@ -210,32 +210,35 @@ class _LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = LsColors.of(context);
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: LsInteractive(
-        onPressed: onPressed,
-        builder: (context, hovered, focused) => LsFocusRing(
-          visible: focused,
-          child: Container(
-            constraints: const BoxConstraints(
-              minWidth: LsSpacing.minTarget,
-              minHeight: LsSpacing.minTarget,
-            ),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            color: selected ? colors.fg : null,
-            child: Text(
-              code,
-              style: LsType.monoLabel.copyWith(
-                color: selected
-                    ? colors.bg
-                    : hovered
-                    ? colors.fg
-                    : colors.fg2,
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        enabled: true,
+        label: label,
+        child: LsInteractive(
+          onPressed: onPressed,
+          builder: (context, hovered, focused) => LsFocusRing(
+            visible: focused,
+            child: Container(
+              constraints: const BoxConstraints(
+                minWidth: LsSpacing.minTarget,
+                minHeight: LsSpacing.minTarget,
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              color: selected ? colors.fg : null,
+              child: ExcludeSemantics(
+                child: Text(
+                  code,
+                  style: LsType.monoLabel.copyWith(
+                    color: selected
+                        ? colors.bg
+                        : hovered
+                        ? colors.fg
+                        : colors.fg2,
+                  ),
+                ),
               ),
             ),
           ),
@@ -253,23 +256,26 @@ class _ThemeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = LsColors.of(context);
-    return Semantics(
-      button: true,
-      label: AppLocalizations.of(context).themeToggleLabel,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: LsInteractive(
-        onPressed: onPressed,
-        builder: (context, hovered, focused) => LsFocusRing(
-          visible: focused,
-          child: Container(
-            width: LsSpacing.minTarget,
-            height: LsSpacing.minTarget,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: hovered ? colors.fg2 : colors.line),
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        enabled: true,
+        label: AppLocalizations.of(context).themeToggleLabel,
+        child: LsInteractive(
+          onPressed: onPressed,
+          builder: (context, hovered, focused) => LsFocusRing(
+            visible: focused,
+            child: Container(
+              width: LsSpacing.minTarget,
+              height: LsSpacing.minTarget,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(color: hovered ? colors.fg2 : colors.line),
+              ),
+              child: ExcludeSemantics(
+                child: Icon(Icons.contrast, size: 16, color: colors.fg),
+              ),
             ),
-            child: Icon(Icons.contrast, size: 16, color: colors.fg),
           ),
         ),
       ),

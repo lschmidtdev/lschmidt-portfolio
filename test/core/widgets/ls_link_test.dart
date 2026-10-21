@@ -51,4 +51,50 @@ void main() {
     expect(launched, [target.toString()]);
     expect(tester.takeException(), isA<StateError>());
   });
+
+  testWidgets('a link is focusable and keeps its label and link role', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpLs(
+      Center(
+        child: LsLink(label: 'Go', onPressed: () {}),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.text('GO')),
+      isSemantics(
+        label: 'Go',
+        isLink: true,
+        isFocusable: true,
+        hasEnabledState: true,
+        isEnabled: true,
+        hasTapAction: true,
+        hasFocusAction: true,
+      ),
+    );
+    handle.dispose();
+  });
+
+  testWidgets('an href link is focusable and keeps its label', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpLs(
+      Center(
+        child: LsLink(label: 'Go', href: target),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.text('GO')),
+      isSemantics(
+        label: 'Go',
+        isLink: true,
+        isFocusable: true,
+        hasTapAction: true,
+        hasFocusAction: true,
+      ),
+    );
+    handle.dispose();
+  });
 }

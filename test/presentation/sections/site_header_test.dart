@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
@@ -147,4 +148,67 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('the language options and the theme button are focusable', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpLs(_page());
+
+    expect(
+      tester.getSemantics(find.text('PT')),
+      isSemantics(
+        label: 'Português',
+        isButton: true,
+        hasSelectedState: true,
+        isSelected: false,
+        isFocusable: true,
+        hasEnabledState: true,
+        isEnabled: true,
+        hasTapAction: true,
+        hasFocusAction: true,
+      ),
+    );
+    expect(
+      tester.getSemantics(find.byIcon(Icons.contrast)),
+      isSemantics(
+        label: 'Toggle light or dark theme',
+        isButton: true,
+        isFocusable: true,
+        hasTapAction: true,
+        hasFocusAction: true,
+      ),
+    );
+    handle.dispose();
+  });
+
+  testWidgets('every header control is reachable with Tab', (tester) async {
+    await tester.pumpLs(_page());
+    final reached = <String>[];
+    for (var i = 0; i < 8; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final focused = FocusManager.instance.primaryFocus!.context!;
+      final texts = find.descendant(
+        of: find.byElementPredicate((e) => e == focused),
+        matching: find.byType(Text),
+      );
+      reached.add(
+        texts.evaluate().isEmpty
+            ? 'icon'
+            : (texts.evaluate().last.widget as Text).data!,
+      );
+    }
+
+    expect(reached, [
+      'Lucas Schmidt',
+      'WORK',
+      'EXPERIENCE',
+      'SKILLS',
+      'CONTACT',
+      'EN',
+      'PT',
+      'icon',
+    ]);
+  });
 }

@@ -40,27 +40,31 @@ class LsLink extends StatelessWidget {
 
   Widget _link(BuildContext context, VoidCallback? onTap) {
     final colors = LsColors.of(context);
-    return Semantics(
-      link: true,
-      label: label,
-      excludeSemantics: true,
-      enabled: onTap != null,
-      onTap: onTap,
-      child: LsInteractive(
-        onPressed: onTap,
-        builder: (context, hovered, focused) => LsFocusRing(
-          visible: focused,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minHeight: LsSpacing.minTarget,
-              minWidth: LsSpacing.minTarget,
-            ),
-            child: Align(
-              widthFactor: 1,
-              heightFactor: 1,
-              child: Text(
-                uppercase ? label.toUpperCase() : label,
-                style: style.copyWith(color: hovered ? colors.fg : colors.fg2),
+    return MergeSemantics(
+      child: Semantics(
+        link: true,
+        label: label,
+        enabled: onTap != null,
+        child: LsInteractive(
+          onPressed: onTap,
+          builder: (context, hovered, focused) => LsFocusRing(
+            visible: focused,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: LsSpacing.minTarget,
+                minWidth: LsSpacing.minTarget,
+              ),
+              child: Align(
+                widthFactor: 1,
+                heightFactor: 1,
+                child: ExcludeSemantics(
+                  child: Text(
+                    uppercase ? label.toUpperCase() : label,
+                    style: style.copyWith(
+                      color: hovered ? colors.fg : colors.fg2,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
