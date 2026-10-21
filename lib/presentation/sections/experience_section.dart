@@ -42,11 +42,14 @@ class ExperienceSection extends StatelessWidget {
                 spacing: LsSpacing.s4,
                 runSpacing: LsSpacing.s4,
                 children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      l10n.experienceTitle,
-                      style: LsType.h2For(width).copyWith(color: colors.fg),
+                  SectionFocus(
+                    id: SectionId.experience,
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.experienceTitle,
+                        style: LsType.h2For(width).copyWith(color: colors.fg),
+                      ),
                     ),
                   ),
                   Text(

@@ -17,15 +17,20 @@ enum SectionId {
   GlobalKey keyIn(BuildContext context) =>
       (SectionScope.maybeOf(context) ?? _fallback)[this];
 
+  FocusNode focusIn(BuildContext context) =>
+      (SectionScope.maybeOf(context) ?? _fallback).focusOf(this);
+
   Future<void> scrollTo(BuildContext context) async {
     final target = keyIn(context).currentContext;
     if (target == null) return;
+    final focus = focusIn(context);
     final motion = LsMotion.of(context);
     await Scrollable.ensureVisible(
       target,
       duration: motion.movement(LsMotion.reveal),
       curve: Curves.easeOut,
     );
+    if (focus.context != null) focus.requestFocus();
   }
 }
 
@@ -33,8 +38,34 @@ class SectionKeys {
   final _keys = {
     for (final id in SectionId.values) id: GlobalKey(debugLabel: id.name),
   };
+  final _focus = {
+    for (final id in SectionId.values)
+      id: FocusNode(
+        debugLabel: id.name,
+        skipTraversal: id != SectionId.contact,
+      ),
+  };
 
   GlobalKey operator [](SectionId id) => _keys[id]!;
+
+  FocusNode focusOf(SectionId id) => _focus[id]!;
+
+  void dispose() {
+    for (final node in _focus.values) {
+      node.dispose();
+    }
+  }
+}
+
+class SectionFocus extends StatelessWidget {
+  const SectionFocus({super.key, required this.id, required this.child});
+
+  final SectionId id;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      Focus(focusNode: id.focusIn(context), child: child);
 }
 
 class SectionScope extends InheritedWidget {

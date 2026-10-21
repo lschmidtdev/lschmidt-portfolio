@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _scroll.dispose();
+    _sectionKeys.dispose();
     super.dispose();
   }
 

@@ -40,4 +40,22 @@ test.describe('keyboard', () => {
       await tabTo(page, name, pattern);
     }
   });
+
+  test('Enter on Contact moves the focus into the form', async ({ page }) => {
+    await open(page);
+    for (const [name, pattern] of headerControls.slice(0, 5)) {
+      await tabTo(page, name, pattern);
+    }
+
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Tab');
+
+    const form = page.getByRole('group', { name: 'Contact form' });
+    const focused = form.locator(':focus');
+    await expect(focused).toHaveCount(1);
+    const box = (await focused.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  });
 });

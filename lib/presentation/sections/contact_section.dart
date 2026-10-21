@@ -379,6 +379,7 @@ class _FieldsState extends State<_Fields> {
           children: [
             TextFormField(
               controller: _name,
+              focusNode: SectionId.contact.focusIn(context),
               style: inputStyle,
               decoration: _decoration(context, l10n.contactNameLabel),
               autofillHints: const [AutofillHints.name],

@@ -49,11 +49,14 @@ class SkillsSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: headerGap),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.skillsTitle,
-                    style: LsType.h2For(width).copyWith(color: colors.fg),
+                child: SectionFocus(
+                  id: SectionId.skills,
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      l10n.skillsTitle,
+                      style: LsType.h2For(width).copyWith(color: colors.fg),
+                    ),
                   ),
                 ),
               ),

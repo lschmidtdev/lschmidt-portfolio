@@ -73,11 +73,14 @@ class WorkSection extends StatelessWidget {
                 spacing: gap,
                 runSpacing: gap,
                 children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      l10n.workTitle,
-                      style: LsType.h2For(width).copyWith(color: colors.fg),
+                  SectionFocus(
+                    id: SectionId.work,
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.workTitle,
+                        style: LsType.h2For(width).copyWith(color: colors.fg),
+                      ),
                     ),
                   ),
                   Text(

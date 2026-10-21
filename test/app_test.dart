@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -21,6 +22,7 @@ import 'package:lschmidt_portfolio/presentation/sections/contact_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/experience_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/project_tile.dart';
 import 'package:lschmidt_portfolio/presentation/sections/site_footer.dart';
+import 'package:lschmidt_portfolio/presentation/sections/site_header.dart';
 import 'package:lschmidt_portfolio/presentation/sections/skills_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
@@ -260,7 +262,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(scrollable.position.pixels, greaterThan(0));
-    expect(tester.getTopLeft(find.byKey(key)).dy, closeTo(0, 1));
+    final top = tester.getTopLeft(find.byKey(key)).dy;
+    expect(top, inInclusiveRange(-100, 1));
+    final name = tester.getRect(
+      find.byWidgetPredicate(
+        (w) => w is TextField && w.decoration?.labelText == 'Name',
+      ),
+    );
+    expect(name.bottom, lessThanOrEqualTo(600));
   });
 
   testWidgets('Email me in the hero scrolls to the contact section', (
@@ -318,5 +327,106 @@ void main() {
     expect(requests, 0);
     expect(find.textContaining('could not be sent'), findsOneWidget);
     expect(find.text('EMAIL ME DIRECTLY'), findsOneWidget);
+  });
+
+  group('navigation moves the focus', () {
+    Element focusedElement() =>
+        FocusManager.instance.primaryFocus!.context! as Element;
+
+    void expectFocusInside(WidgetTester tester, Type section) {
+      final focused = focusedElement();
+      var inside = false;
+      focused.visitAncestorElements((ancestor) {
+        inside = ancestor.widget.runtimeType == section;
+        return !inside;
+      });
+      expect(inside, isTrue, reason: '$focused should be inside $section');
+      final box = focused.renderObject! as RenderBox;
+      final top = box.localToGlobal(Offset.zero).dy;
+      final height =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      expect(top, greaterThanOrEqualTo(0));
+      expect(top + box.size.height, lessThanOrEqualTo(height));
+    }
+
+    Future<void> pressTab(WidgetTester tester) async {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the Contact link, then Tab, lands inside the form', (
+      tester,
+    ) async {
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('CONTACT').first);
+      await tester.pumpAndSettle();
+      await pressTab(tester);
+
+      expectFocusInside(tester, ContactSection);
+    });
+
+    testWidgets('Email me in the hero, then Tab, lands inside the form', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1440, 900);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Email me'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Email me'));
+      await tester.pumpAndSettle();
+      await pressTab(tester);
+
+      expectFocusInside(tester, ContactSection);
+    });
+
+    testWidgets('the Work link focuses the heading, Tab moves on from it', (
+      tester,
+    ) async {
+      await tester.pumpWidget(App(repository: FakePortfolioRepository()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('WORK'));
+      await tester.pumpAndSettle();
+
+      expectFocusInside(tester, WorkSection);
+      expect(
+        find.descendant(
+          of: find.byElementPredicate((e) => e == focusedElement()),
+          matching: find.text('Selected work'),
+        ),
+        findsOneWidget,
+      );
+      await pressTab(tester);
+      final next = focusedElement();
+      var inHeader = false;
+      next.visitAncestorElements((ancestor) {
+        inHeader =
+            ancestor.widget is SiteHeader || ancestor.widget is WorkSection;
+        return !inHeader;
+      });
+      expect(inHeader, isFalse, reason: '$next should come after the heading');
+    });
+
+    testWidgets('with reduced motion the focus moves on the same frame', (
+      tester,
+    ) async {
+      final reduced = ValueNotifier(true);
+      addTearDown(reduced.dispose);
+      await tester.pumpWidget(
+        App(repository: FakePortfolioRepository(), reducedMotion: reduced),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('SKILLS'));
+      await tester.pump();
+
+      expectFocusInside(tester, SkillsSection);
+    });
   });
 }

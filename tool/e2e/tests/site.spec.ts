@@ -150,9 +150,10 @@ test.describe('reduced motion', () => {
     );
     const viewport = page.viewportSize()!;
     const content = { x: 0, y: 0, width: viewport.width - 30, height: viewport.height };
-    const first = await page.screenshot({ clip: content });
+    const caret = [page.getByRole('textbox', { name: 'Name', exact: true })];
+    const first = await page.screenshot({ clip: content, mask: caret });
     await nextFrames(page, 45);
-    const settled = await page.screenshot({ clip: content });
+    const settled = await page.screenshot({ clip: content, mask: caret });
 
     const samples = await page.evaluate(
       () => (window as unknown as { scrollSamples: number[] }).scrollSamples,
