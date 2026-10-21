@@ -39,12 +39,11 @@ void main() {
       expect(content.roles.where((r) => r.current).single.company, 'Pulsati');
     });
 
-    test('only Shipped and Next carry dates', () async {
+    test('only Shipped carries a date', () async {
       final content = await repository.load(AppLocale.en);
       final dated = content.currently.where((c) => c.date != null).toList();
-      expect(dated.map((c) => c.label), ['SHIPPED', 'NEXT']);
-      expect(dated.first.date, DateTime(2026, 10, 18));
-      expect(dated.last.date, DateTime(2026, 10, 20));
+      expect(dated.map((c) => c.label), ['SHIPPED']);
+      expect(dated.single.date, DateTime(2026, 10, 18));
     });
 
     test('loads Portuguese content', () async {

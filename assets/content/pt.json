@@ -8,7 +8,7 @@
     { "label": "STATUS", "value": "Aberto a vagas remotas", "date": null },
     { "label": "AGORA", "value": "Apps de saúde · Pulsati", "date": null },
     { "label": "LANÇADO", "value": "zirkon.com.br v1.0.0 · out 2026", "date": "2026-10-18" },
-    { "label": "PRÓXIMO", "value": "Zsplit · lançamento em out 2026", "date": "2026-10-20" },
+    { "label": "PRÓXIMO", "value": "Zsplit · em breve", "date": null },
     { "label": "BASE", "value": "Blumenau, BR · UTC−3 · EN C1", "date": null }
   ],
   "metrics": [
