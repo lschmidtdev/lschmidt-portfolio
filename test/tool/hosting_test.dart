@@ -71,6 +71,32 @@ void main() {
     expect(value, withoutHashes);
   });
 
+  test('no rule caches flutter_service_worker.js', () {
+    final rules = (hosting.single['headers']! as List<Object?>)
+        .cast<Map<String, Object?>>();
+    final cacheControl = [
+      for (final rule in rules)
+        for (final h
+            in (rule['headers']! as List<Object?>).cast<Map<String, Object?>>())
+          if (h['key'] == 'Cache-Control') '${rule['source']}: ${h['value']}',
+    ];
+    expect(cacheControl, ['**: no-cache']);
+    expect(hosting.single['ignore'], ['firebase.json', '**/.*']);
+  });
+
+  test('the bootstrap registers no service worker and retires old ones', () {
+    final js = File('web/flutter_bootstrap.js').readAsStringSync();
+    expect(js, startsWith('{{flutter_js}}\n{{flutter_build_config}}\n'));
+    expect(js, isNot(contains('serviceWorkerSettings')));
+    expect(js, isNot(contains('flutter_service_worker_version')));
+    expect(js, isNot(contains('.register(')));
+    expect(js, contains('_flutter.loader.load()'));
+    expect(js, contains('getRegistrations()'));
+    expect(js, contains('.unregister()'));
+    expect(js, contains('caches.delete('));
+    expect(js, contains('location.reload()'));
+  });
+
   test('.firebaserc maps the default project and the site target', () {
     final rc =
         jsonDecode(File('.firebaserc').readAsStringSync())
