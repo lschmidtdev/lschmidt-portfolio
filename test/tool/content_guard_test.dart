@@ -9,7 +9,9 @@ String _escapePdfText(String text) => text
     .replaceAll(r'\', r'\\')
     .replaceAll('(', r'\(')
     .replaceAll(')', r'\)')
-    .replaceAll('–', r'\226');
+    .replaceAll('–', r'\226')
+    .replaceAll('\u00ad', r'\202')
+    .replaceAll('\u200b', r'\201');
 
 List<int> buildPdf(List<String> lines) {
   final stream = StringBuffer('BT /F1 12 Tf 72 720 Td 14 TL\n');
@@ -25,7 +27,10 @@ List<int> buildPdf(List<String> lines) {
         '/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
     '<< /Length ${content.length} >>\nstream\n$content\nendstream',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
-        '/Encoding /WinAnsiEncoding >>',
+        '/Encoding << /BaseEncoding /WinAnsiEncoding '
+        '/Differences [129 /uni200B /uni00AD] >> '
+        '/FirstChar 32 /LastChar 255 '
+        '/Widths [${List.filled(224, 556).join(' ')}] >>',
   ];
   final out = StringBuffer('%PDF-1.4\n');
   final offsets = <int>[];
@@ -167,6 +172,8 @@ void main() {
         'wrapped email': ['Mail someone@', 'example.com'],
         'en-dash number': ['Call (11) 98765–4321'],
         'wide-spaced number': ['Call (11) 98765                    4321'],
+        'soft-hyphen number': ['Call (11) 98765\u00ad4321'],
+        'zero-width-split number': ['Call (11) 9876\u200b5-4321'],
       };
       cases.forEach((label, lines) {
         final dir = pdfDir({'cv.pdf': lines});

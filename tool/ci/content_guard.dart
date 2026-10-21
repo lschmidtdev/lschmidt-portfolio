@@ -60,10 +60,12 @@ List<String> scanPaths(Iterable<String> roots) {
   return hits;
 }
 
-String _normalizeText(String text) => text
-    .replaceAll(RegExp('[‐-―−]'), '-')
-    .replaceAll(RegExp(r'\s+'), ' ')
-    .trim();
+String _normalizeSeparators(String text) => text
+    .replaceAll(RegExp('[\u200b-\u200d\u2060\ufeff]'), '')
+    .replaceAll(RegExp('[\u00ad\u2010-\u2015\u2212]'), '-');
+
+String _normalizeText(String text) =>
+    _normalizeSeparators(text).replaceAll(RegExp(r'\s+'), ' ').trim();
 
 String _joinWrappedAddresses(String text) => text
     .replaceAll(RegExp(r'\s*@\s*'), '@')
@@ -120,7 +122,9 @@ List<String> scanPdfs(
       final lineViolations = <String>{};
       final lines = text.split('\n');
       for (var i = 0; i < lines.length; i++) {
-        for (final violation in findViolations(lines[i])) {
+        for (final violation in findViolations(
+          _normalizeSeparators(lines[i]),
+        )) {
           lineViolations.add(violation);
           hits.add('$name:${i + 1}: $violation');
         }
