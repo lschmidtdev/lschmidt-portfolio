@@ -507,10 +507,6 @@ void main() {
         () => checkCspHashes(hosting([good, good]), [shellHtml]),
         returnsNormally,
       );
-      expect(
-        () => checkCspHashes(hosting([good], key: reportOnly), [shellHtml]),
-        returnsNormally,
-      );
     });
 
     test('fails on a missing hash, a stale hash or no header', () {
@@ -524,27 +520,18 @@ void main() {
       );
       expect(
         () => checkCspHashes(hosting([null]), [shellHtml]),
-        fails('no Content-Security-Policy'),
+        fails('no enforced Content-Security-Policy'),
       );
     });
 
-    test('stale hashes still fail the build under the Report-Only header', () {
+    test('a Report-Only header alone fails the build', () {
       expect(
-        () => checkCspHashes(
-          hosting(["$good 'sha256-stale='"], key: reportOnly),
-          [shellHtml],
-        ),
-        fails('sha256-stale='),
-      );
-      expect(
-        () => checkCspHashes(hosting(["script-src 'self'"], key: reportOnly), [
-          shellHtml,
-        ]),
-        fails('"t0"'),
+        () => checkCspHashes(hosting([good], key: reportOnly), [shellHtml]),
+        fails('"t0" has no enforced Content-Security-Policy'),
       );
     });
 
-    test('the enforced header takes precedence over Report-Only', () {
+    test('only the enforced header is checked', () {
       final json = {
         'hosting': [
           {

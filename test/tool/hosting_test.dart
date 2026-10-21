@@ -46,15 +46,41 @@ void main() {
     ]);
   });
 
-  test('security headers on **, indexable, CSP report-only in M1', () {
+  test('security headers on **, indexable, CSP enforced', () {
     final h = headers();
     expect(h['Cache-Control'], 'no-cache');
     expect(h['X-Content-Type-Options'], 'nosniff');
     expect(h['Referrer-Policy'], 'strict-origin-when-cross-origin');
-    expect(h, contains('Content-Security-Policy-Report-Only'));
-    expect(h, isNot(contains('Content-Security-Policy')));
+    expect(h, contains('Content-Security-Policy'));
+    expect(h, isNot(contains('Content-Security-Policy-Report-Only')));
     expect(h, isNot(contains('X-Robots-Tag')));
     expect(jsonEncode(firebase), isNot(contains('noindex')));
+  });
+
+  Map<String, List<String>> directives() => {
+    for (final parts in [
+      for (final d in headers()['Content-Security-Policy']!.split(';'))
+        d.trim().split(RegExp(r'\s+')),
+    ])
+      parts.first: parts.skip(1).toList(),
+  };
+
+  test('CSP allows the contact form and analytics providers', () {
+    final d = directives();
+    expect(d['script-src'], contains('https://cloud.umami.is'));
+    expect(
+      d['connect-src'],
+      containsAll(['https://api.web3forms.com', 'https://gateway.umami.is']),
+    );
+  });
+
+  test('CSP locks framing, plugins and native form posts', () {
+    final d = directives();
+    expect(d['frame-ancestors'], ["'none'"]);
+    expect(d['object-src'], ["'none'"]);
+    expect(d['form-action'], ["'none'"]);
+    expect(d['base-uri'], ["'self'"]);
+    expect(d['default-src'], ["'self'"]);
   });
 
   test('CSP keeps its sources (hashes are checked by build_shell_test)', () {
@@ -64,7 +90,7 @@ void main() {
         "style-src 'self' 'unsafe-inline'; "
         "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com https://gateway.umami.is; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'";
-    final value = headers()['Content-Security-Policy-Report-Only']!.replaceAll(
+    final value = headers()['Content-Security-Policy']!.replaceAll(
       RegExp(r" 'sha256-[A-Za-z0-9+/=]+'"),
       '',
     );

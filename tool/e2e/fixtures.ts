@@ -30,9 +30,11 @@ export const test = base.extend<{
   allowedErrors: RegExp[];
   errors: string[];
   outbound: Outbound;
+  umamiGatewayAllowed: boolean;
 }>({
+  umamiGatewayAllowed: [false, { option: true }],
   outbound: [
-    async ({ page }, use) => {
+    async ({ page, umamiGatewayAllowed }, use) => {
       const outbound: Outbound = { umamiGateway: [], web3forms: [] };
       page.on('request', (r) => {
         const host = new URL(r.url()).host;
@@ -45,7 +47,9 @@ export const test = base.extend<{
       await page.route(umamiGateway, (route) => route.abort());
       await page.route(web3formsApi, (route) => route.abort());
       await use(outbound);
-      expect(outbound.umamiGateway, 'requests to the Umami gateway').toEqual([]);
+      if (!umamiGatewayAllowed) {
+        expect(outbound.umamiGateway, 'requests to the Umami gateway').toEqual([]);
+      }
     },
     { auto: true },
   ],

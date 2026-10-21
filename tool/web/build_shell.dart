@@ -182,23 +182,18 @@ Set<String> scriptSrcHashes(String policy) {
 }
 
 String? _cspOf(Map<String, Object?> target) {
-  String? enforced;
-  String? reportOnly;
   for (final rule
       in (target['headers'] as List<Object?>? ?? [])
           .cast<Map<String, Object?>>()) {
     for (final header
         in (rule['headers'] as List<Object?>? ?? [])
             .cast<Map<String, Object?>>()) {
-      final key = header['key'];
-      if (key == 'Content-Security-Policy') {
-        enforced ??= header['value'] as String?;
-      } else if (key == 'Content-Security-Policy-Report-Only') {
-        reportOnly ??= header['value'] as String?;
+      if (header['key'] == 'Content-Security-Policy') {
+        return header['value'] as String?;
       }
     }
   }
-  return enforced ?? reportOnly;
+  return null;
 }
 
 void checkCspHashes(
@@ -213,7 +208,8 @@ void checkCspHashes(
     final policy = _cspOf(target);
     if (policy == null) {
       throw ShellException(
-        'hosting target "$name" has no Content-Security-Policy header',
+        'hosting target "$name" has no enforced Content-Security-Policy '
+        'header',
       );
     }
     final listed = scriptSrcHashes(policy);
