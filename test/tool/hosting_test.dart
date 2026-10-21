@@ -29,6 +29,7 @@ void main() {
       expect(t['target'], 'site');
       expect(t['public'], 'build/web');
       expect(t['trailingSlash'], isFalse);
+      expect(t['ignore'], ['firebase.json', '**/.*']);
     },
   );
 
@@ -97,17 +98,68 @@ void main() {
     expect(value, withoutHashes);
   });
 
-  test('no rule caches flutter_service_worker.js', () {
-    final rules = (hosting.single['headers']! as List<Object?>)
-        .cast<Map<String, Object?>>();
-    final cacheControl = [
-      for (final rule in rules)
-        for (final h
-            in (rule['headers']! as List<Object?>).cast<Map<String, Object?>>())
-          if (h['key'] == 'Cache-Control') '${rule['source']}: ${h['value']}',
+  RegExp globToRegExp(String glob) {
+    final pattern = StringBuffer('^');
+    for (var i = 0; i < glob.length; i++) {
+      final c = glob[i];
+      if (glob.startsWith('**', i)) {
+        pattern.write('.*');
+        i++;
+      } else if (c == '*') {
+        pattern.write('[^/]*');
+      } else if (c == '?') {
+        pattern.write('[^/]');
+      } else if (c == '{' || (c == '@' && glob.startsWith('@(', i))) {
+        if (c == '@') i++;
+        pattern.write('(');
+      } else if (c == '}' || c == ')') {
+        pattern.write(')');
+      } else if (c == ',' || c == '|') {
+        pattern.write('|');
+      } else {
+        pattern.write(RegExp.escape(c));
+      }
+    }
+    return RegExp('${pattern.toString()}\$');
+  }
+
+  test('glob matching follows the hosting rules', () {
+    expect(globToRegExp('**').hasMatch('/flutter_service_worker.js'), isTrue);
+    expect(
+      globToRegExp('**/*.@(js|css)').hasMatch('/flutter_service_worker.js'),
+      isTrue,
+    );
+    expect(
+      globToRegExp('/*.{png,svg}').hasMatch('/flutter_service_worker.js'),
+      isFalse,
+    );
+    expect(globToRegExp('/assets/**').hasMatch('/main.dart.js'), isFalse);
+  });
+
+  test('every header rule that matches flutter_service_worker.js says '
+      'no-cache', () {
+    final matching = [
+      for (final rule
+          in (hosting.single['headers']! as List<Object?>)
+              .cast<Map<String, Object?>>())
+        if (rule['regex'] != null
+            ? RegExp(
+                rule['regex']! as String,
+              ).hasMatch('/flutter_service_worker.js')
+            : globToRegExp(
+                rule['source']! as String,
+              ).hasMatch('/flutter_service_worker.js'))
+          rule,
     ];
-    expect(cacheControl, ['**: no-cache']);
-    expect(hosting.single['ignore'], ['firebase.json', '**/.*']);
+    expect(matching, isNotEmpty);
+    for (final rule in matching) {
+      for (final h
+          in (rule['headers']! as List<Object?>).cast<Map<String, Object?>>()) {
+        if (h['key'] == 'Cache-Control') {
+          expect(h['value'], 'no-cache', reason: '${rule['source']}');
+        }
+      }
+    }
   });
 
   test('the bootstrap registers no service worker and retires old ones', () {
