@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:lschmidt_portfolio/config/site_config.dart';
 
 const scannedRoots = ['lib', 'assets', 'web'];
+const pdfRoots = ['web/cv'];
 
 final _rules = <String, RegExp>{
   'the word "senior"': RegExp(r'\bs[eê]nior\b', caseSensitive: false),
@@ -59,8 +60,67 @@ List<String> scanPaths(Iterable<String> roots) {
   return hits;
 }
 
+List<String> scanPdfs(
+  Iterable<String> roots, {
+  String executable = 'pdftotext',
+}) {
+  final hits = <String>[];
+  for (final root in roots) {
+    final dir = Directory(root);
+    if (!dir.existsSync()) continue;
+    final pdfs =
+        dir
+            .listSync(recursive: true, followLinks: false)
+            .whereType<File>()
+            .where((f) => f.path.toLowerCase().endsWith('.pdf'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
+    for (final pdf in pdfs) {
+      final ProcessResult result;
+      try {
+        result = Process.runSync(executable, [
+          '-layout',
+          '-enc',
+          'UTF-8',
+          pdf.path,
+          '-',
+        ], stdoutEncoding: utf8);
+      } on ProcessException catch (e) {
+        throw StateError(
+          'cannot scan ${pdf.path}: $executable is not available (${e.message})',
+        );
+      }
+      if (result.exitCode != 0) {
+        throw StateError(
+          'cannot scan ${pdf.path}: $executable exited with ${result.exitCode}',
+        );
+      }
+      final lines = (result.stdout as String).split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        for (final violation in findViolations(lines[i])) {
+          hits.add('${pdf.path.replaceAll(r'\', '/')}:${i + 1}: $violation');
+        }
+      }
+    }
+  }
+  return hits;
+}
+
 void main() {
-  final hits = scanPaths(scannedRoots);
+  final List<String> hits;
+  try {
+    hits = [
+      ...scanPaths(scannedRoots),
+      ...scanPdfs(
+        pdfRoots,
+        executable: Platform.environment['PDFTOTEXT'] ?? 'pdftotext',
+      ),
+    ];
+  } on StateError catch (e) {
+    stderr.writeln('content_guard: ${e.message}');
+    exitCode = 1;
+    return;
+  }
   if (hits.isEmpty) {
     stdout.writeln('content_guard: clean');
     return;

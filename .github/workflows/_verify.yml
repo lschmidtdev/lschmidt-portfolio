@@ -31,6 +31,8 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
         run: flutter analyze
+      - name: Install PDF text extraction
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
       - name: Content guard
         run: dart run tool/ci/content_guard.dart
       - name: Test

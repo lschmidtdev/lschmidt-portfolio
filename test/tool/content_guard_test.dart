@@ -1,8 +1,54 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../tool/ci/content_guard.dart';
+
+String _escapePdfText(String text) =>
+    text.replaceAll(r'\', r'\\').replaceAll('(', r'\(').replaceAll(')', r'\)');
+
+List<int> buildPdf(List<String> lines) {
+  final stream = StringBuffer('BT /F1 12 Tf 72 720 Td 14 TL\n');
+  for (final line in lines) {
+    stream.writeln('(${_escapePdfText(line)}) Tj T*');
+  }
+  stream.write('ET');
+  final content = stream.toString();
+  final objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] '
+        '/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    '<< /Length ${content.length} >>\nstream\n$content\nendstream',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+  ];
+  final out = StringBuffer('%PDF-1.4\n');
+  final offsets = <int>[];
+  for (var i = 0; i < objects.length; i++) {
+    offsets.add(out.length);
+    out.write('${i + 1} 0 obj\n${objects[i]}\nendobj\n');
+  }
+  final xref = out.length;
+  out.write('xref\n0 ${objects.length + 1}\n0000000000 65535 f \n');
+  for (final offset in offsets) {
+    out.write('${offset.toString().padLeft(10, '0')} 00000 n \n');
+  }
+  out.write(
+    'trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n'
+    'startxref\n$xref\n%%EOF\n',
+  );
+  return latin1.encode(out.toString());
+}
+
+Directory pdfDir(Map<String, List<String>> files) {
+  final dir = Directory.systemTemp.createTempSync('content_guard_pdf_');
+  addTearDown(() => dir.deleteSync(recursive: true));
+  files.forEach((name, lines) {
+    File('${dir.path}/$name').writeAsBytesSync(buildPdf(lines));
+  });
+  return dir;
+}
 
 void main() {
   group('findViolations', () {
@@ -61,6 +107,59 @@ void main() {
           "'sha256-4OS4jRSVdIyUgRe46AdYhnZ5ceJmpTJqKL3iTuQ+F98=' "
           "'sha256-ViLKY6d8TdJEw9cl7B3AzGfyJRhXZKDBnjIIowYeVGI='",
         ),
+        isEmpty,
+      );
+    });
+  });
+
+  group('scanPdfs', () {
+    test('flags a phone number inside a PDF', () {
+      final dir = pdfDir({
+        'cv.pdf': ['Jane Doe', 'Phone +55 11 9 8765-4321'],
+      });
+      final hits = scanPdfs([dir.path]);
+      expect(hits, isNotEmpty);
+      expect(hits, everyElement(contains('cv.pdf:2')));
+      expect(hits, everyElement(contains('phone number')));
+    });
+
+    test('flags a foreign email inside a PDF', () {
+      final dir = pdfDir({
+        'cv.pdf': ['Mail someone@example.com'],
+      });
+      final hits = scanPdfs([dir.path]);
+      expect(hits, isNotEmpty);
+      expect(hits, everyElement(contains('email')));
+    });
+
+    test('passes a clean PDF', () {
+      final dir = pdfDir({
+        'cv.pdf': ['Jane Doe', 'Mail lschmidt.dev@gmail.com'],
+      });
+      expect(scanPdfs([dir.path]), isEmpty);
+    });
+
+    test('passes when the directory is missing or holds no PDFs', () {
+      final dir = Directory.systemTemp.createTempSync('content_guard_pdf_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      File('${dir.path}/note.txt').writeAsStringSync('Senior');
+      expect(scanPdfs(['${dir.path}/missing']), isEmpty);
+      expect(scanPdfs([dir.path]), isEmpty);
+    });
+
+    test('fails loudly when pdftotext is unavailable and PDFs exist', () {
+      final dir = pdfDir({
+        'cv.pdf': ['Jane Doe'],
+      });
+      expect(
+        () => scanPdfs([dir.path], executable: 'no-such-pdftotext'),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('does not need pdftotext when there are no PDFs', () {
+      expect(
+        scanPdfs(['${Directory.systemTemp.path}/none'], executable: 'nope'),
         isEmpty,
       );
     });
