@@ -85,6 +85,7 @@ class SiteHeader extends StatelessWidget {
                             label: label,
                             href: pageUri(locale, section: id.name),
                             onActivated: () => id.scrollTo(context),
+                            inPage: true,
                           ),
                         _LanguageSwitch(
                           selected: locale,
@@ -114,7 +115,7 @@ class _Brand extends StatelessWidget {
   Widget build(BuildContext context) => Link(
     uri: href,
     builder: (context, followLink) =>
-        _brand(context, withActivation(followLink, onActivated)),
+        _brand(context, inPageActivation(followLink, onActivated, href)),
   );
 
   Widget _brand(BuildContext context, VoidCallback? onPressed) {

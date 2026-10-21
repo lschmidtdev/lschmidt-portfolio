@@ -276,17 +276,15 @@ void main() {
     expect(name.bottom, lessThanOrEqualTo(600));
   });
 
-  for (final (path, contact, fragmentUrl) in [
-    ('/', 'CONTACT', '/#contact'),
-    ('/pt', 'CONTATO', '/pt#contact'),
-  ]) {
-    testWidgets('on $path the Contact link moves the url to $fragmentUrl', (
+  for (final (path, contact) in [('/', 'CONTACT'), ('/pt', 'CONTATO')]) {
+    testWidgets('on $path a click on Contact scrolls and keeps the url', (
       tester,
     ) async {
       await tester.pumpWidget(
         App(initialLocation: path, repository: FakePortfolioRepository()),
       );
       await tester.pumpAndSettle();
+      final updates = recordRouteUpdates(tester);
       final page = tester.element(find.byType(Scaffold));
       final locale = page.read<LocaleCubit>().state;
 
@@ -295,24 +293,29 @@ void main() {
 
       final scrolled = _pageScrollable(tester).position.pixels;
       expect(scrolled, greaterThan(0));
+      expect(updates, isEmpty);
       expect(
         GoRouter.of(page).routeInformationProvider.value.uri.toString(),
-        fragmentUrl,
+        path,
       );
       expect(page.read<LocaleCubit>().state, locale);
-      expect(find.byType(ProjectTile), findsNWidgets(5));
+      expect(
+        FocusManager.instance.primaryFocus,
+        SectionId.contact.focusIn(tester.element(find.byType(SiteHeader))),
+      );
       await tester.pumpAndSettle();
       expect(_pageScrollable(tester).position.pixels, scrolled);
     });
   }
 
-  testWidgets('the brand scrolls back to the top and moves the url home', (
+  testWidgets('the brand scrolls back to the top and keeps the url', (
     tester,
   ) async {
     await tester.pumpWidget(
       App(initialLocation: '/pt', repository: FakePortfolioRepository()),
     );
     await tester.pumpAndSettle();
+    final updates = recordRouteUpdates(tester);
     final page = tester.element(find.byType(Scaffold));
     _pageScrollable(tester).position.jumpTo(30);
     await tester.pump();
@@ -321,6 +324,7 @@ void main() {
     await settlePushedRoutes(tester);
 
     expect(_pageScrollable(tester).position.pixels, 0);
+    expect(updates, isEmpty);
     expect(
       GoRouter.of(page).routeInformationProvider.value.uri.toString(),
       '/pt',

@@ -16,6 +16,7 @@ class LsLink extends StatelessWidget {
     this.onActivated,
     this.style = LsType.monoLabel,
     this.uppercase = true,
+    this.inPage = false,
   }) : assert(onPressed == null || href == null, 'Pass onPressed or href.');
 
   final String label;
@@ -25,6 +26,7 @@ class LsLink extends StatelessWidget {
   final VoidCallback? onActivated;
   final TextStyle style;
   final bool uppercase;
+  final bool inPage;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +35,12 @@ class LsLink extends StatelessWidget {
     return Link(
       uri: href,
       target: target,
-      builder: (context, followLink) =>
-          _link(context, withActivation(followLink, onActivated)),
+      builder: (context, followLink) => _link(
+        context,
+        inPage
+            ? inPageActivation(followLink, onActivated, href)
+            : withActivation(followLink, onActivated),
+      ),
     );
   }
 

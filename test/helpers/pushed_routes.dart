@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,4 +25,24 @@ Future<void> settlePushedRoutes(WidgetTester tester) async {
     () => Future<void>.delayed(const Duration(milliseconds: 20)),
   );
   await tester.pumpAndSettle();
+}
+
+List<String> recordRouteUpdates(WidgetTester tester) {
+  final updates = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.navigation,
+    (call) async {
+      if (call.method == 'routeInformationUpdated') {
+        updates.add((call.arguments as Map)['uri'].toString());
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.navigation,
+      null,
+    ),
+  );
+  return updates;
 }

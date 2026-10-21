@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { boot, expect, test } from '../fixtures';
+import { boot, expect, nextFrames, test } from '../fixtures';
 
 const headerControls: [string, RegExp][] = [
   ['brand', /^LS\s*Lucas Schmidt$/],
@@ -99,20 +99,49 @@ test.describe('header links', () => {
     });
   }
 
-  test('a click on a nav link scrolls in page without a reload', async ({ page }) => {
+  test('nav clicks scroll in page and leave the url and history alone', async ({ page }) => {
+    await page.goto('/robots.txt');
     await open(page);
-    await page.evaluate(() => {
+    const before = await page.evaluate(() => {
       (window as unknown as { sameDocument: boolean }).sameDocument = true;
+      return { url: location.href, length: history.length };
     });
     expect(await pageScroll(page)).toBe(0);
 
     await page.getByRole('link', { name: 'Experience', exact: true }).click();
-
     await expect.poll(() => pageScroll(page)).toBeGreaterThan(0);
-    await expect(page).toHaveURL(/\/#experience$/);
-    expect(
-      await page.evaluate(() => (window as unknown as { sameDocument?: boolean }).sameDocument),
-    ).toBe(true);
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toBeInViewport();
+    for (const name of ['Work', 'Skills', 'Contact']) {
+      await page.mouse.move(700, 450);
+      await page.mouse.wheel(0, -100_000);
+      await expect.poll(() => pageScroll(page)).toBe(0);
+      await page.getByRole('link', { name, exact: true }).click();
+      await expect.poll(() => pageScroll(page)).toBeGreaterThan(0);
+    }
+    await page.mouse.wheel(0, -100_000);
+    await expect.poll(() => pageScroll(page)).toBe(0);
+    await page.getByRole('link', { name: brandName }).click();
+    await nextFrames(page, 10);
+
+    const after = await page.evaluate(() => ({
+      url: location.href,
+      length: history.length,
+      sameDocument: (window as unknown as { sameDocument?: boolean }).sameDocument,
+    }));
+    expect(after).toEqual({ ...before, sameDocument: true });
+
+    await page.goBack();
+    await expect(page).toHaveURL(/\/robots\.txt$/);
+  });
+
+  test('a ctrl-click on a nav link opens its url in a new tab', async ({ context, page }) => {
+    await open(page);
+    const url = page.url();
+    const [opened] = await Promise.all([
+      context.waitForEvent('page'),
+      page.getByRole('link', { name: 'Skills', exact: true }).click({ modifiers: ['ControlOrMeta'] }),
+    ]);
+    await expect.poll(() => opened.url()).toMatch(/\/#skills$/);
+    expect(page.url()).toBe(url);
   });
 });

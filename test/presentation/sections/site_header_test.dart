@@ -5,6 +5,7 @@ import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/presentation/sections/site_header.dart';
 
+import '../../helpers/mock_url_launcher.dart';
 import '../../helpers/pump_ls.dart';
 import '../../helpers/pushed_routes.dart';
 
@@ -100,23 +101,67 @@ void main() {
     });
   }
 
-  testWidgets('the links push their url and a nav link still scrolls', (
+  testWidgets('a plain activation scrolls and leaves the url alone', (
     tester,
   ) async {
     final pushed = recordPushedRoutes(tester);
     await tester.pumpLs(_page(), reducedMotion: true);
+    final updates = recordRouteUpdates(tester);
 
     await tester.tap(find.text('Lucas Schmidt'));
     await settlePushedRoutes(tester);
-    expect(pushed, ['/']);
-
     await tester.tap(find.text('CONTACT'));
     await settlePushedRoutes(tester);
 
     final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
     expect(scrollable.position.pixels, greaterThan(1500));
-    expect(pushed, ['/', '/#contact']);
+    expect(pushed, isEmpty);
+    expect(updates, isEmpty);
   });
+
+  testWidgets('Enter on a nav link scrolls and leaves the url alone', (
+    tester,
+  ) async {
+    final pushed = recordPushedRoutes(tester);
+    await tester.pumpLs(_page(), reducedMotion: true);
+    final updates = recordRouteUpdates(tester);
+
+    for (var i = 0; i < 5; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await settlePushedRoutes(tester);
+
+    final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+    expect(scrollable.position.pixels, greaterThan(1500));
+    expect(pushed, isEmpty);
+    expect(updates, isEmpty);
+  });
+
+  for (final modifier in [
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.metaLeft,
+    LogicalKeyboardKey.shiftLeft,
+  ]) {
+    testWidgets('${modifier.keyLabel} + click opens the url in a new tab', (
+      tester,
+    ) async {
+      final pushed = recordPushedRoutes(tester);
+      final launched = mockUrlLauncher(tester);
+      await tester.pumpLs(_page(), reducedMotion: true);
+
+      await tester.sendKeyDownEvent(modifier);
+      await tester.tap(find.text('CONTACT'));
+      await tester.sendKeyUpEvent(modifier);
+      await settlePushedRoutes(tester);
+
+      final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+      expect(scrollable.position.pixels, 0);
+      expect(pushed, isEmpty);
+      expect(launched, hasLength(1));
+      expect(launched.single, endsWith('/#contact'));
+    });
+  }
 
   testWidgets('the selected language is marked and the other one switches', (
     tester,
