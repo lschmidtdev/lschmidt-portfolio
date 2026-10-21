@@ -111,6 +111,16 @@ test('a page loaded through the 2024 worker ends with no worker and no caches', 
   await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
 });
 
+test('the site loads when service workers and caches are blocked', async ({ page }) => {
+  await page.addInitScript(() => {
+    const blocked = () => Promise.reject(new DOMException('blocked', 'SecurityError'));
+    navigator.serviceWorker.getRegistrations = blocked;
+    caches.keys = blocked;
+  });
+  await boot(page, '/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
+});
+
 test('the worker script is served uncached and unregisters itself', async ({ request }) => {
   const response = await request.get(oldWorkerUrl);
   expect(response.status()).toBe(200);

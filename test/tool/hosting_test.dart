@@ -97,6 +97,14 @@ void main() {
     expect(js, contains('location.reload()'));
   });
 
+  test('the bootstrap swallows blocked service workers and caches', () {
+    final js = File('web/flutter_bootstrap.js').readAsStringSync();
+    final recovered = RegExp(
+      r'\}\)\.catch\(function \(\) \{ return \[\]; \}\)',
+    ).allMatches(js);
+    expect(recovered, hasLength(2));
+  });
+
   test('.firebaserc maps the default project and the site target', () {
     final rc =
         jsonDecode(File('.firebaserc').readAsStringSync())
