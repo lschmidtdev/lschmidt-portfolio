@@ -19,9 +19,10 @@ import 'package:lschmidt_portfolio/presentation/sections/skills_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.clock = DateTime.now});
+  const HomePage({super.key, this.clock = DateTime.now, this.initialSection});
 
   final DateTime Function() clock;
+  final SectionId? initialSection;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -30,6 +31,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _scroll = ScrollController();
   final _sectionKeys = SectionKeys();
+  late SectionId? _pendingSection = widget.initialSection;
+
+  @override
+  void initState() {
+    super.initState();
+    _revealPendingSection(context.read<ContentCubit>().state);
+  }
+
+  void _revealPendingSection(ContentState state) {
+    final section = _pendingSection;
+    if (section == null || state is! ContentReady) return;
+    _pendingSection = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _sectionKeys[section].currentContext;
+      if (!mounted || target == null) return;
+      section.scrollTo(target, moveFocus: false);
+    });
+  }
 
   @override
   void dispose() {
@@ -43,50 +62,53 @@ class _HomePageState extends State<HomePage> {
     final locale = context.watch<LocaleCubit>().state;
     return SectionScope(
       keys: _sectionKeys,
-      child: Scaffold(
-        body: PrimaryScrollController(
-          controller: _scroll,
-          child: SingleChildScrollView(
+      child: BlocListener<ContentCubit, ContentState>(
+        listener: (context, state) => _revealPendingSection(state),
+        child: Scaffold(
+          body: PrimaryScrollController(
             controller: _scroll,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SiteHeader(
-                  locale: locale,
-                  onLocaleSelected: context.read<LocaleCubit>().select,
-                  onToggleTheme: context.read<ThemeCubit>().toggle,
-                ),
-                BlocBuilder<ContentCubit, ContentState>(
-                  builder: (context, state) => switch (state) {
-                    ContentLoading() => const SizedBox.shrink(),
-                    ContentReady(:final content) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        HeroSection(
-                          profile: content.profile,
-                          currently: content.currently,
-                          locale: locale,
-                          now: widget.clock(),
-                        ),
-                        ResultsStrip(metrics: content.metrics),
-                        WorkSection(projects: content.projects),
-                        ExperienceSection(roles: content.roles),
-                        SkillsSection(
-                          groups: content.skillGroups,
-                          education: content.education,
-                          languages: content.languages,
-                        ),
-                        ContactSection(locale: locale),
-                        const SiteFooter(),
-                      ],
-                    ),
-                    ContentError() => const Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [_ContentUnavailable(), SiteFooter()],
-                    ),
-                  },
-                ),
-              ],
+            child: SingleChildScrollView(
+              controller: _scroll,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SiteHeader(
+                    locale: locale,
+                    onLocaleSelected: context.read<LocaleCubit>().select,
+                    onToggleTheme: context.read<ThemeCubit>().toggle,
+                  ),
+                  BlocBuilder<ContentCubit, ContentState>(
+                    builder: (context, state) => switch (state) {
+                      ContentLoading() => const SizedBox.shrink(),
+                      ContentReady(:final content) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          HeroSection(
+                            profile: content.profile,
+                            currently: content.currently,
+                            locale: locale,
+                            now: widget.clock(),
+                          ),
+                          ResultsStrip(metrics: content.metrics),
+                          WorkSection(projects: content.projects),
+                          ExperienceSection(roles: content.roles),
+                          SkillsSection(
+                            groups: content.skillGroups,
+                            education: content.education,
+                            languages: content.languages,
+                          ),
+                          ContactSection(locale: locale),
+                          const SiteFooter(),
+                        ],
+                      ),
+                      ContentError() => const Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [_ContentUnavailable(), SiteFooter()],
+                      ),
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

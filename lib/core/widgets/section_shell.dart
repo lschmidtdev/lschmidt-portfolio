@@ -23,7 +23,10 @@ enum SectionId {
   FocusNode fieldIn(BuildContext context) =>
       (SectionScope.maybeOf(context) ?? _fallback).fieldOf(this);
 
-  Future<void> scrollTo(BuildContext context) async {
+  static SectionId? fromFragment(String fragment) =>
+      values.asNameMap()[fragment];
+
+  Future<void> scrollTo(BuildContext context, {bool moveFocus = true}) async {
     final target = keyIn(context).currentContext;
     if (target == null) return;
     final heading = focusIn(context);
@@ -34,6 +37,7 @@ enum SectionId {
       duration: motion.movement(LsMotion.reveal),
       curve: Curves.easeOut,
     );
+    if (!moveFocus) return;
     final keyboard =
         FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
     final focus = keyboard && field.context != null ? field : heading;

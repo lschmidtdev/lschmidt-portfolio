@@ -308,6 +308,62 @@ void main() {
     });
   }
 
+  for (final (location, section, locale) in [
+    ('/#contact', SectionId.contact, AppLocale.en),
+    ('/pt#skills', SectionId.skills, AppLocale.pt),
+  ]) {
+    testWidgets('opening $location starts at its section without focus', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        App(initialLocation: location, repository: FakePortfolioRepository()),
+      );
+      await tester.pumpAndSettle();
+
+      final page = tester.element(find.byType(SiteHeader));
+      expect(page.read<LocaleCubit>().state, locale);
+      expect(_pageScrollable(tester).position.pixels, greaterThan(0));
+      final top = tester.getTopLeft(find.byKey(section.keyIn(page))).dy;
+      expect(top, inInclusiveRange(-30, 1));
+      expect(section.focusIn(page).hasFocus, isFalse);
+      expect(section.fieldIn(page).hasFocus, isFalse);
+    });
+  }
+
+  testWidgets('opening an unknown fragment stays at the top', (tester) async {
+    await tester.pumpWidget(
+      App(initialLocation: '/#nope', repository: FakePortfolioRepository()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ContactSection), findsOneWidget);
+    expect(_pageScrollable(tester).position.pixels, 0);
+  });
+
+  testWidgets('opening a section url with reduced motion jumps to it', (
+    tester,
+  ) async {
+    final reduced = ValueNotifier(true);
+    addTearDown(reduced.dispose);
+    await tester.pumpWidget(
+      App(
+        initialLocation: '/#contact',
+        repository: FakePortfolioRepository(),
+        reducedMotion: reduced,
+      ),
+    );
+    final samples = <double>[];
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      samples.add(_pageScrollable(tester).position.pixels);
+    }
+    await tester.pumpAndSettle();
+
+    final end = _pageScrollable(tester).position.pixels;
+    expect(end, greaterThan(0));
+    expect(samples.where((p) => p > 0).toSet(), {end});
+  });
+
   testWidgets('the brand scrolls back to the top and keeps the url', (
     tester,
   ) async {

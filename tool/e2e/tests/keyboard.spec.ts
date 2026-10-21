@@ -134,7 +134,7 @@ test.describe('header links', () => {
     await expect(page).toHaveURL(/\/robots\.txt$/);
   });
 
-  test('a ctrl-click on a nav link opens its url in a new tab', async ({ context, page }) => {
+  test('a ctrl-click on a nav link opens its section in one new tab', async ({ context, page }) => {
     await open(page);
     const url = page.url();
     const [opened] = await Promise.all([
@@ -142,6 +142,35 @@ test.describe('header links', () => {
       page.getByRole('link', { name: 'Skills', exact: true }).click({ modifiers: ['ControlOrMeta'] }),
     ]);
     await expect.poll(() => opened.url()).toMatch(/\/#skills$/);
+    await expect(opened.locator('flutter-view')).toBeAttached({ timeout: 30_000 });
+    await expect(opened.getByRole('heading', { name: 'Skills', exact: true })).toBeInViewport({
+      timeout: 30_000,
+    });
+    await expect.poll(() => pageScroll(opened)).toBeGreaterThan(0);
+    await expect(opened).toHaveURL(/\/#skills$/);
+    await nextFrames(page, 10);
+    expect(context.pages()).toHaveLength(2);
     expect(page.url()).toBe(url);
+    expect(await pageScroll(page)).toBe(0);
+  });
+
+  for (const { path, heading } of [
+    { path: '/#contact', heading: /^Hiring a\s*Flutter engineer\?$/ },
+    { path: '/pt#skills', heading: /^Habilidades$/ },
+  ]) {
+    test(`opening ${path} starts at its section`, async ({ page }) => {
+      await boot(page, path);
+      await expect(page.getByRole('heading', { name: heading })).toBeInViewport();
+      await expect.poll(() => pageScroll(page)).toBeGreaterThan(0);
+      const { pathname, hash } = new URL(page.url());
+      expect(pathname + hash).toBe(path);
+    });
+  }
+
+  test('opening an unknown fragment stays at the top', async ({ page }) => {
+    await boot(page, '/#nope');
+    await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeInViewport();
+    await nextFrames(page, 10);
+    expect(await pageScroll(page)).toBe(0);
   });
 });
