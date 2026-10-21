@@ -9,7 +9,7 @@ const headerControls: [string, RegExp][] = [
   ['Contact', /^Contact$/],
   ['English', /^English$/],
   ['Português', /^Português$/],
-  ['theme', /^Toggle light or dark theme$/],
+  ['theme', /^Switch to light theme$/],
 ];
 
 const focusedName = (page: Page) =>

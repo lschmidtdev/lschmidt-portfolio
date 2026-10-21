@@ -13,7 +13,7 @@ const locales = [
     role: 'Mobile Engineer — Flutter',
     email: 'Email me',
     summary: /^Building production Flutter apps since 2020/,
-    themeToggle: 'Toggle light or dark theme',
+    themeToggle: 'Switch to light theme',
   },
   {
     path: '/pt',
@@ -21,7 +21,7 @@ const locales = [
     role: 'Engenheiro Mobile — Flutter',
     email: 'Fale comigo',
     summary: /^Construo apps Flutter em produção desde 2020/,
-    themeToggle: 'Alternar tema claro ou escuro',
+    themeToggle: 'Mudar para o tema claro',
   },
 ];
 
@@ -105,7 +105,7 @@ test.describe('theme toggle', () => {
     const dark = await page.screenshot();
     const before = await heading.boundingBox();
 
-    await page.getByRole('button', { name: 'Toggle light or dark theme' }).click();
+    await page.getByRole('button', { name: 'Switch to light theme' }).click();
     await expect
       .poll(async () => (await page.screenshot()).equals(dark), { timeout: 10_000 })
       .toBe(false);

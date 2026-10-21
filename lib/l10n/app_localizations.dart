@@ -176,11 +176,17 @@ abstract class AppLocalizations {
   /// **'Português'**
   String get languagePortugueseLabel;
 
-  /// Accessible name of the icon-only theme button
+  /// Accessible name of the icon-only theme button while the dark theme is on
   ///
   /// In en, this message translates to:
-  /// **'Toggle light or dark theme'**
-  String get themeToggleLabel;
+  /// **'Switch to light theme'**
+  String get themeToggleToLight;
+
+  /// Accessible name of the icon-only theme button while the light theme is on
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to dark theme'**
+  String get themeToggleToDark;
 
   /// Hero primary button, links to the PDF
   ///

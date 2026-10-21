@@ -110,6 +110,10 @@ test.describe('contact form server error', () => {
     const fallback = page.getByRole('link', { name: 'Email me directly' });
     await expect(fallback).toBeVisible();
     await expect(fallback).toHaveAttribute('href', /^mailto:lschmidt\.dev@gmail\.com/);
+    await expect(fallback).toHaveAttribute(
+      'href',
+      new RegExp(`&body=${encodeURIComponent(visitor.message)}%0A%0A${encodeURIComponent(visitor.name)}$`),
+    );
     await expect(page.getByRole('textbox', { name: 'Message' })).toHaveValue(visitor.message);
     await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue(visitor.name);
     await expect(page.getByRole('heading', { name: 'Message sent.' })).toHaveCount(0);

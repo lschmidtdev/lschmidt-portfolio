@@ -95,7 +95,7 @@ void main() {
     var toggles = 0;
     await tester.pumpLs(_page(onTheme: () => toggles++));
 
-    final button = find.bySemanticsLabel('Toggle light or dark theme');
+    final button = find.bySemanticsLabel('Switch to light theme');
     expect(button, findsOneWidget);
     await tester.tap(button);
 
@@ -107,7 +107,7 @@ void main() {
     final handle = tester.ensureSemantics();
     await tester.pumpLs(_page(locale: AppLocale.pt), locale: AppLocale.pt);
 
-    expect(find.bySemanticsLabel('Alternar tema claro ou escuro'), findsOne);
+    expect(find.bySemanticsLabel('Mudar para o tema claro'), findsOne);
     handle.dispose();
   });
 
@@ -130,7 +130,7 @@ void main() {
       expect(size.height, greaterThanOrEqualTo(48), reason: text);
       expect(size.width, greaterThanOrEqualTo(48), reason: text);
     }
-    final theme = find.bySemanticsLabel('Toggle light or dark theme');
+    final theme = find.bySemanticsLabel('Switch to light theme');
     expect(tester.getSize(theme).height, greaterThanOrEqualTo(48));
   });
 
@@ -172,7 +172,7 @@ void main() {
     expect(
       tester.getSemantics(find.byIcon(Icons.contrast)),
       isSemantics(
-        label: 'Toggle light or dark theme',
+        label: 'Switch to light theme',
         isButton: true,
         isFocusable: true,
         hasTapAction: true,
@@ -210,5 +210,50 @@ void main() {
       'PT',
       'icon',
     ]);
+  });
+
+  for (final scale in [1.5, 2.0]) {
+    testWidgets('lays out at 360 px with text scale $scale without overflow', (
+      tester,
+    ) async {
+      await tester.pumpLs(
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(scale)),
+            child: _page(),
+          ),
+        ),
+        width: 360,
+        height: 740,
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SiteHeader), findsOneWidget);
+    });
+  }
+
+  testWidgets('the theme button names the theme it switches to', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpLs(_page());
+    expect(
+      tester.getSemantics(find.byIcon(Icons.contrast)),
+      isSemantics(label: 'Switch to light theme', isButton: true),
+    );
+
+    await tester.pumpLs(_page(), light: true);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(find.byIcon(Icons.contrast)),
+      isSemantics(label: 'Switch to dark theme', isButton: true),
+    );
+
+    await tester.pumpLs(_page(), light: true, locale: AppLocale.pt);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('Mudar para o tema escuro'), findsOne);
+    handle.dispose();
   });
 }

@@ -51,7 +51,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get languagePortugueseLabel => 'Português';
 
   @override
-  String get themeToggleLabel => 'Alternar tema claro ou escuro';
+  String get themeToggleToLight => 'Mudar para o tema claro';
+
+  @override
+  String get themeToggleToDark => 'Mudar para o tema escuro';
 
   @override
   String get heroDownloadCv => 'Baixar CV (PDF)';

@@ -51,7 +51,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languagePortugueseLabel => 'Português';
 
   @override
-  String get themeToggleLabel => 'Toggle light or dark theme';
+  String get themeToggleToLight => 'Switch to light theme';
+
+  @override
+  String get themeToggleToDark => 'Switch to dark theme';
 
   @override
   String get heroDownloadCv => 'Download CV (PDF)';

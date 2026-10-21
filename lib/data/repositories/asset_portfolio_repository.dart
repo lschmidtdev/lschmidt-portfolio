@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-
-import '../../domain/entities/app_locale.dart';
-import '../../domain/entities/portfolio_content.dart';
-import '../../domain/repositories/portfolio_repository.dart';
+import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
+import 'package:lschmidt_portfolio/domain/entities/portfolio_content.dart';
+import 'package:lschmidt_portfolio/domain/repositories/portfolio_repository.dart';
 
 class AssetPortfolioRepository implements PortfolioRepository {
   const AssetPortfolioRepository(this._bundle);

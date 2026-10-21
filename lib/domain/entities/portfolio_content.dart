@@ -1,10 +1,10 @@
-import 'currently_item.dart';
-import 'education.dart';
-import 'metric.dart';
-import 'profile.dart';
-import 'project.dart';
-import 'role.dart';
-import 'skill_group.dart';
+import 'package:lschmidt_portfolio/domain/entities/currently_item.dart';
+import 'package:lschmidt_portfolio/domain/entities/education.dart';
+import 'package:lschmidt_portfolio/domain/entities/metric.dart';
+import 'package:lschmidt_portfolio/domain/entities/profile.dart';
+import 'package:lschmidt_portfolio/domain/entities/project.dart';
+import 'package:lschmidt_portfolio/domain/entities/role.dart';
+import 'package:lschmidt_portfolio/domain/entities/skill_group.dart';
 
 class PortfolioContent {
   const PortfolioContent({

@@ -1,4 +1,4 @@
-import 'metric.dart';
+import 'package:lschmidt_portfolio/domain/entities/metric.dart';
 
 class Project {
   const Project({

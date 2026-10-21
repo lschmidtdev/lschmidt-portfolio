@@ -37,6 +37,19 @@ class ContactSection extends StatelessWidget {
     'mailto:${SiteConfig.email}?subject=${Uri.encodeComponent(subject)}',
   );
 
+  static Uri mailtoWithMessage(String subject, ContactMessage message) {
+    final signature = [
+      message.name,
+      ?message.company,
+    ].where((part) => part.isNotEmpty).join(' · ');
+    final body = signature.isEmpty
+        ? message.message
+        : '${message.message}\n\n$signature';
+    return Uri.parse(
+      '${mailtoWithSubject(subject)}&body=${Uri.encodeComponent(body)}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
@@ -358,8 +371,9 @@ class _FieldsState extends State<_Fields> {
   Widget build(BuildContext context) {
     final colors = LsColors.of(context);
     final l10n = AppLocalizations.of(context);
-    final sending = widget.state is ContactSending;
-    final failed = widget.state is ContactFailed;
+    final state = widget.state;
+    final sending = state is ContactSending;
+    final failed = state is ContactFailed;
     final inputStyle = LsType.body.copyWith(color: colors.fg);
     final mailto = ContactSection.mailtoWithSubject(l10n.contactMailSubject);
     void trackEmailApp() => context.read<AnalyticsRepository>().track(
@@ -434,10 +448,13 @@ class _FieldsState extends State<_Fields> {
                   style: LsType.bodySm.copyWith(color: colors.fg2),
                 ),
               ),
-              if (failed)
+              if (state is ContactFailed)
                 LsLink(
                   label: l10n.contactFailedMailto,
-                  href: mailto,
+                  href: ContactSection.mailtoWithMessage(
+                    l10n.contactMailSubject,
+                    state.message,
+                  ),
                   onActivated: trackEmailApp,
                 ),
               const SizedBox(height: LsSpacing.s3),

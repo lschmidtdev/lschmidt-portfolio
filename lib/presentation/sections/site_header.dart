@@ -141,10 +141,12 @@ class _Brand extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: LsSpacing.s3),
-                  Text(
-                    SiteConfig.name,
-                    style: LsType.brand.copyWith(
-                      color: hovered ? colors.accent : colors.fg,
+                  Flexible(
+                    child: Text(
+                      SiteConfig.name,
+                      style: LsType.brand.copyWith(
+                        color: hovered ? colors.accent : colors.fg,
+                      ),
                     ),
                   ),
                 ],
@@ -260,7 +262,9 @@ class _ThemeToggle extends StatelessWidget {
       child: Semantics(
         button: true,
         enabled: true,
-        label: AppLocalizations.of(context).themeToggleLabel,
+        label: Theme.of(context).brightness == Brightness.light
+            ? AppLocalizations.of(context).themeToggleToDark
+            : AppLocalizations.of(context).themeToggleToLight,
         child: LsInteractive(
           onPressed: onPressed,
           builder: (context, hovered, focused) => LsFocusRing(

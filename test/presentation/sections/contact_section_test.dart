@@ -275,6 +275,57 @@ void main() {
     expect(repository.sent, hasLength(2));
   });
 
+  Uri? fallbackHref(WidgetTester tester) => tester
+      .widget<LsLink>(
+        find.byWidgetPredicate(
+          (w) => w is LsLink && w.label == 'Email me directly',
+        ),
+      )
+      .href;
+
+  testWidgets('the failed-state mailto carries the typed message', (
+    tester,
+  ) async {
+    await _pump(tester, _Repository(fail: true));
+    await _fillValid(tester);
+    await _tapSend(tester);
+    await tester.pumpAndSettle();
+
+    expect(
+      fallbackHref(tester).toString(),
+      'mailto:${SiteConfig.email}'
+      '?subject=Remote%20Flutter%20opportunity'
+      '&body=We%20have%20a%20remote%20Flutter%20role%20for%20you.'
+      '%0A%0AAna%20Recruiter%20%C2%B7%20Acme',
+    );
+  });
+
+  testWidgets('the failed-state mailto leaves out an empty company', (
+    tester,
+  ) async {
+    await _pump(tester, _Repository(fail: true), locale: AppLocale.pt);
+    await tester.enterText(_field('Nome'), 'Ana');
+    await tester.enterText(_field('Email'), 'ana@example.com');
+    await tester.enterText(_field('Mensagem'), 'Temos uma vaga & mais?');
+    await tester.tap(find.text('Enviar mensagem'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<LsLink>(
+            find.byWidgetPredicate(
+              (w) => w is LsLink && w.label == 'Escreva direto para mim',
+            ),
+          )
+          .href
+          .toString(),
+      'mailto:${SiteConfig.email}'
+      '?subject=Oportunidade%20Flutter%20remota'
+      '&body=Temos%20uma%20vaga%20%26%20mais%3F%0A%0AAna',
+    );
+  });
+
   testWidgets('the failure is announced', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, _Repository(fail: true));
