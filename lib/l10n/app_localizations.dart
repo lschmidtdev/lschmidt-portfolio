@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Mobile engineer building production Flutter apps since 2020. Open to remote roles.'**
   String get metaDescription;
 
+  /// Alt text of the link preview image (og:image:alt, twitter:image:alt)
+  ///
+  /// In en, this message translates to:
+  /// **'Lucas Schmidt, Mobile Engineer (Flutter): production Flutter apps since 2020, open to remote roles.'**
+  String get metaImageAlt;
+
   /// Heading of the no-JavaScript fallback
   ///
   /// In en, this message translates to:
@@ -121,6 +127,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I build production Flutter apps and I am open to remote roles. This page needs JavaScript to load; you can reach me at lschmidt.dev@gmail.com.'**
   String get fallbackBody;
+
+  /// Accessible name of the main navigation landmark
+  ///
+  /// In en, this message translates to:
+  /// **'Main'**
+  String get navMainLabel;
+
+  /// Header link to the Selected work section
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get navWork;
+
+  /// Header link to the Experience section
+  ///
+  /// In en, this message translates to:
+  /// **'Experience'**
+  String get navExperience;
+
+  /// Header link to the Skills section
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get navSkills;
+
+  /// Header link to the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get navContact;
+
+  /// Accessible name of the EN/PT switch
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageGroupLabel;
+
+  /// Accessible name of the EN button
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglishLabel;
+
+  /// Accessible name of the PT button
+  ///
+  /// In en, this message translates to:
+  /// **'Português'**
+  String get languagePortugueseLabel;
+
+  /// Accessible name of the icon-only theme button while the dark theme is on
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to light theme'**
+  String get themeToggleToLight;
+
+  /// Accessible name of the icon-only theme button while the light theme is on
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to dark theme'**
+  String get themeToggleToDark;
+
+  /// Hero primary button, links to the PDF
+  ///
+  /// In en, this message translates to:
+  /// **'Download CV (PDF)'**
+  String get heroDownloadCv;
+
+  /// Hero ghost button, scrolls to the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Email me'**
+  String get heroEmailMe;
+
+  /// Title of the Currently card
+  ///
+  /// In en, this message translates to:
+  /// **'Currently'**
+  String get currentlyTitle;
+
+  /// Availability badge of the Currently card
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get currentlyAvailable;
+
+  /// Accessible name of the results strip
+  ///
+  /// In en, this message translates to:
+  /// **'Selected results'**
+  String get resultsLabel;
+
+  /// Heading of the Selected work section
+  ///
+  /// In en, this message translates to:
+  /// **'Selected work'**
+  String get workTitle;
+
+  /// Project count and period next to the Selected work heading
+  ///
+  /// In en, this message translates to:
+  /// **'{count} projects · 2023 — 2026'**
+  String workCount(String count);
+
+  /// Button linking to the Play Store listing of a project
+  ///
+  /// In en, this message translates to:
+  /// **'Get it on Google Play'**
+  String get workPlayStore;
+
+  /// Heading of the Experience section
+  ///
+  /// In en, this message translates to:
+  /// **'Experience'**
+  String get experienceTitle;
+
+  /// Period shown next to the Experience heading
+  ///
+  /// In en, this message translates to:
+  /// **'2021 — now'**
+  String get experienceRange;
+
+  /// Heading of the Skills section
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get skillsTitle;
+
+  /// Label of the education line under the skill groups
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get skillsEducation;
+
+  /// Label of the languages line under the skill groups
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get skillsLanguages;
+
+  /// Copyright line of the footer
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 {name}'**
+  String footerCopyright(String name);
+
+  /// Footer note about the technology
+  ///
+  /// In en, this message translates to:
+  /// **'Built with Flutter Web'**
+  String get footerBuilt;
+
+  /// Footer note with the date the CV was last updated
+  ///
+  /// In en, this message translates to:
+  /// **'CV updated {date}'**
+  String footerCvUpdated(String date);
+
+  /// Eyebrow of the Contact section
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactEyebrow;
+
+  /// Contact heading; the text between asterisks gets the accent colour
+  ///
+  /// In en, this message translates to:
+  /// **'Hiring a\n*Flutter* engineer?'**
+  String get contactHeading;
+
+  /// Button linking to the LinkedIn profile
+  ///
+  /// In en, this message translates to:
+  /// **'LinkedIn ↗'**
+  String get contactLinkedIn;
+
+  /// Button linking to the GitHub profile
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub ↗'**
+  String get contactGitHub;
+
+  /// Button linking to the CV PDF
+  ///
+  /// In en, this message translates to:
+  /// **'CV · PDF ↓'**
+  String get contactCv;
+
+  /// Accessible name of the contact form
+  ///
+  /// In en, this message translates to:
+  /// **'Contact form'**
+  String get contactFormLabel;
+
+  /// Label of the name field
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get contactNameLabel;
+
+  /// Label of the email field
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactEmailLabel;
+
+  /// Label of the optional company field
+  ///
+  /// In en, this message translates to:
+  /// **'Company (optional)'**
+  String get contactCompanyLabel;
+
+  /// Label of the message field
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get contactMessageLabel;
+
+  /// Validation error for an empty name
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name.'**
+  String get contactErrorNameRequired;
+
+  /// Validation error for an invalid email
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get contactErrorEmailInvalid;
+
+  /// Validation error for a short message
+  ///
+  /// In en, this message translates to:
+  /// **'Please write at least {count} characters.'**
+  String contactErrorMessageTooShort(int count);
+
+  /// Submit button of the contact form
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get contactSend;
+
+  /// Submit button text and status while the message is being sent
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get contactSending;
+
+  /// Heading shown after the message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent.'**
+  String get contactSentTitle;
+
+  /// Text shown after the message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for reaching out. I will reply by email.'**
+  String get contactSentBody;
+
+  /// Button that shows the form again after a message was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Send another message'**
+  String get contactSendAnother;
+
+  /// Text shown when sending failed
+  ///
+  /// In en, this message translates to:
+  /// **'Your message could not be sent. It is still in the form, so you can try again or email me directly.'**
+  String get contactFailedMessage;
+
+  /// Link to the email app shown when sending failed
+  ///
+  /// In en, this message translates to:
+  /// **'Email me directly'**
+  String get contactFailedMailto;
+
+  /// Prompt before the link that opens the email app
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer your own email app?'**
+  String get contactEmailAppPrompt;
+
+  /// Link that opens the email app
+  ///
+  /// In en, this message translates to:
+  /// **'Open it'**
+  String get contactEmailAppAction;
+
+  /// Subject of the message prepared by the email app link
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Flutter opportunity'**
+  String get contactMailSubject;
 }
 
 class _AppLocalizationsDelegate

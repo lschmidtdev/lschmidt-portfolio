@@ -60,9 +60,9 @@ void main() {
   test('CSP keeps its sources (hashes are checked by build_shell_test)', () {
     const withoutHashes =
         "default-src 'self'; "
-        "script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/; "
+        "script-src 'self' 'wasm-unsafe-eval' https://www.gstatic.com/flutter-canvaskit/ https://cloud.umami.is; "
         "style-src 'self' 'unsafe-inline'; "
-        "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/; "
+        "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com https://gateway.umami.is; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'";
     final value = headers()['Content-Security-Policy-Report-Only']!.replaceAll(
       RegExp(r" 'sha256-[A-Za-z0-9+/=]+'"),

@@ -23,14 +23,20 @@ enum ShellLocale {
 }
 
 class ShellConfig {
-  const ShellConfig({required this.origin, required this.email});
+  const ShellConfig({
+    required this.origin,
+    required this.email,
+    this.umamiWebsiteId = '',
+  });
 
   ShellConfig.fromSiteConfig()
     : origin = SiteConfig.siteUrl,
-      email = SiteConfig.email;
+      email = SiteConfig.email,
+      umamiWebsiteId = SiteConfig.umamiWebsiteId;
 
   final String origin;
   final String email;
+  final String umamiWebsiteId;
 
   String url(ShellLocale locale) => '$origin${locale.path}';
 }
@@ -80,9 +86,11 @@ String renderShell({
     'urlEn': config.url(ShellLocale.en),
     'urlPt': config.url(ShellLocale.pt),
     'ogImage': '${config.origin}/og-image.png',
+    'ogImageAlt': escapeHtml(text(arb, 'metaImageAlt')),
     'ogLocale': locale.ogLocale,
     'ogLocaleAlt': locale.other.ogLocale,
     'jsonLd': jsonLd,
+    'analytics': analyticsTag(config),
     'fallback': fallbackHtml(arb, locale, config),
   };
   return template.replaceAllMapped(RegExp(r'%%(\w+)%%'), (m) {
@@ -91,6 +99,12 @@ String renderShell({
     return value;
   });
 }
+
+String analyticsTag(ShellConfig config) => config.umamiWebsiteId.isEmpty
+    ? ''
+    : '<script defer src="${SiteConfig.umamiScriptUrl}" '
+          'data-domains="${Uri.parse(SiteConfig.siteUrl).host}" '
+          'data-website-id="${escapeHtml(config.umamiWebsiteId)}"></script>';
 
 String fallbackHtml(
   Map<String, Object?> arb,

@@ -1,0 +1,151 @@
+{
+  "profile": {
+    "name": "Lucas Schmidt",
+    "role": "Mobile Engineer — Flutter",
+    "summary": "Building production Flutter apps since 2020. Today: healthcare apps at Pulsati, one with 100K+ downloads. Before that, the sole mobile developer at a logistics operator and a hospital-systems engineer at Philips. Open to remote roles."
+  },
+  "currently": [
+    { "label": "STATUS", "value": "Open to remote roles", "date": null },
+    { "label": "NOW", "value": "Healthcare apps · Pulsati", "date": null },
+    { "label": "SHIPPED", "value": "zirkon.com.br v1.0.0 · Oct 2026", "date": "2026-10-18" },
+    { "label": "NEXT", "value": "Zsplit · coming soon", "date": null },
+    { "label": "BASED", "value": "Blumenau, BR · UTC−3 · EN C1", "date": null }
+  ],
+  "metrics": [
+    { "value": "100K+", "unit": null, "label": "Downloads on UsiSaúde, redesigned and migrated to BLoC" },
+    { "value": "5 → 1", "unit": "min", "label": "Media upload time in a field-inspection app, native Kotlin" },
+    { "value": "571", "unit": null, "label": "Automated tests on zirkon.com.br: 557 Dart + 14 Playwright" },
+    { "value": "1", "unit": "week", "label": "To rebuild a hospital lab-analyzer integration at Philips" }
+  ],
+  "projects": [
+    {
+      "id": "zsplit",
+      "index": "01",
+      "eyebrow": "PERSONAL PRODUCT · 2025 — NOW",
+      "title": "Zsplit",
+      "summary": "Group expense splitting for events and gatherings. Snap a receipt and Gemini reads every line, checks what is a real purchase and returns items ready to assign to people.",
+      "tags": ["Flutter", "BLoC", "Supabase · RLS", "Gemini API"],
+      "stats": [],
+      "footnote": null,
+      "playStoreUrl": null,
+      "headlineStats": false,
+      "featured": true
+    },
+    {
+      "id": "usisaude-hmc",
+      "index": "02",
+      "eyebrow": "PULSATI · 2025 — NOW",
+      "title": "UsiSaúde & HMC",
+      "summary": "Healthcare apps for a health plan and a hospital. Redesigned ~20 screens, built a shared component library and moved both apps to BLoC.",
+      "tags": [],
+      "stats": [
+        { "value": "100K+", "unit": null, "label": "USISAÚDE" },
+        { "value": "10K+", "unit": null, "label": "HMC" }
+      ],
+      "footnote": null,
+      "playStoreUrl": null,
+      "headlineStats": true,
+      "featured": false
+    },
+    {
+      "id": "zirkon-site",
+      "index": "03",
+      "eyebrow": "ZIRKON LABS · 2026",
+      "title": "zirkon.com.br",
+      "summary": "My studio's website, built in Flutter with a fully automated release: every version is tested, then promoted from preview to production.",
+      "tags": [],
+      "stats": [
+        { "value": "100", "unit": null, "label": "A11Y" },
+        { "value": "100", "unit": null, "label": "SEO" },
+        { "value": "0.96s", "unit": null, "label": "LCP" }
+      ],
+      "footnote": null,
+      "playStoreUrl": null,
+      "headlineStats": false,
+      "featured": false
+    },
+    {
+      "id": "meu-tecadi",
+      "index": "04",
+      "eyebrow": "TECADI · 2024 — 2025",
+      "title": "Meu Tecadi",
+      "summary": "The company app for every employee, built from scratch as the sole mobile developer. BLoC and Clean Architecture, offline storage with SQLite, push notifications.",
+      "tags": [],
+      "stats": [],
+      "footnote": "Launched Jan 2025 · Google Play & App Store",
+      "playStoreUrl": null,
+      "headlineStats": false,
+      "featured": false
+    },
+    {
+      "id": "logi360-checklist",
+      "index": "05",
+      "eyebrow": "TECADI · 2025",
+      "title": "Logi360 Checklist",
+      "summary": "Inspections with 10–30+ photos and 1–5 minute videos. On-device compression and chunked background uploads in native Kotlin, with retry on connection loss.",
+      "tags": [],
+      "stats": [],
+      "footnote": "Upload wait: up to 5 min → 1 min max",
+      "playStoreUrl": null,
+      "headlineStats": false,
+      "featured": false
+    }
+  ],
+  "roles": [
+    {
+      "period": "Mar 2025 — Now",
+      "current": true,
+      "company": "Pulsati",
+      "title": "Software Engineer · Mobile",
+      "summary": "Healthcare apps for health plans, hospitals and dental clinics in Flutter, plus React and Java when the feature needs it. Biometric login, scheduling, exam results; patient data protected under LGPD. Code review and mentoring."
+    },
+    {
+      "period": "Nov 2024 — Mar 2025",
+      "current": false,
+      "company": "Tecadi",
+      "title": "Software Engineer · Mobile — sole mobile developer",
+      "summary": "Chose the architecture for and shipped the company-wide employee app. Rebuilt media upload in native Kotlin. Maintained the shared internal plugin behind every Tecadi app."
+    },
+    {
+      "period": "Jul 2023 — Nov 2024",
+      "current": false,
+      "company": "Zirkon Labs",
+      "title": "Software Engineer · Mobile — own studio",
+      "summary": "Built a spaced-repetition English learning app over 8 months with a Python back-end developer: review scheduling, teacher dashboards and offline study. Used by ~100 students on Android and iOS."
+    },
+    {
+      "period": "Dec 2021 — Apr 2023",
+      "current": false,
+      "company": "Philips",
+      "title": "Software Engineer — Tasy hospital system",
+      "summary": "Radiology and laboratory modules. Rebuilt a lab-analyzer integration within a 1-week deadline, refactored ~20 crash-prone screens to run 10–20 s faster. Intern to junior in 12 months."
+    }
+  ],
+  "skillGroups": [
+    {
+      "title": "CORE · DAILY USE",
+      "primary": true,
+      "items": ["Flutter", "Dart", "BLoC", "Clean Architecture", "Kotlin (Android)", "Firebase", "Supabase", "PostgreSQL", "SQLite", "REST", "Play & App Store releases"]
+    },
+    {
+      "title": "WORKING KNOWLEDGE",
+      "primary": false,
+      "items": ["React", "Java", "JavaScript", "C#/.NET", "Oracle", "PL/SQL", "Riverpod", "Material 3", "unit & widget tests", "accessibility", "i18n"]
+    },
+    {
+      "title": "APPLIED AI",
+      "primary": false,
+      "items": ["Gemini API in production", "prompt engineering for data extraction", "LLM integration inside Flutter apps"]
+    },
+    {
+      "title": "DELIVERY",
+      "primary": false,
+      "items": ["GitHub Actions", "build-once-promote", "Firebase Hosting", "Google Cloud", "Playwright", "golden tests", "code review"]
+    }
+  ],
+  "education": [
+    { "degree": "B.Sc. Software Engineering", "institution": "Ampli", "period": "expected Dec 2027" },
+    { "degree": "IT Technical Degree", "institution": "IFSC", "period": "2017" }
+  ],
+  "languages": ["Portuguese (native)", "English (C1)"]
+}

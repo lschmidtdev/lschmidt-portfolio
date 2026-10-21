@@ -16,11 +16,15 @@ const config = ShellConfig(
   email: 'lschmidt.dev@gmail.com',
 );
 
-String shell(ShellLocale locale, {Map<String, Object?>? arb}) => renderShell(
+String shell(
+  ShellLocale locale, {
+  Map<String, Object?>? arb,
+  ShellConfig shellConfig = config,
+}) => renderShell(
   template: realTemplate(),
   arb: arb ?? realArb(locale),
   locale: locale,
-  config: config,
+  config: shellConfig,
 );
 
 void main() {
@@ -28,6 +32,65 @@ void main() {
     for (final locale in ShellLocale.values) {
       expect(shell(locale), isNot(contains('%%')), reason: locale.name);
     }
+  });
+
+  group('analytics tag', () {
+    const withId = ShellConfig(
+      origin: 'https://lschmidt.tech',
+      email: 'lschmidt.dev@gmail.com',
+      umamiWebsiteId: 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb',
+    );
+
+    test('renders the deferred Umami script with the configured id', () {
+      for (final locale in ShellLocale.values) {
+        final html = shell(locale, shellConfig: withId);
+        expect(
+          html,
+          contains(
+            '<script defer src="${SiteConfig.umamiScriptUrl}" '
+            'data-domains="lschmidt.tech" '
+            'data-website-id="aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb"></script>',
+          ),
+        );
+        expect(html, isNot(contains('%%')));
+        expect('data-website-id'.allMatches(html), hasLength(1));
+      }
+    });
+
+    test('renders nothing when the id is empty', () {
+      for (final locale in ShellLocale.values) {
+        final html = shell(locale);
+        expect(html, isNot(contains('umami')));
+        expect(html, isNot(contains('data-website-id')));
+        expect(html, isNot(contains('%%')));
+      }
+    });
+
+    test('escapes the id as an attribute value', () {
+      final html = shell(
+        ShellLocale.en,
+        shellConfig: const ShellConfig(
+          origin: 'https://lschmidt.tech',
+          email: 'lschmidt.dev@gmail.com',
+          umamiWebsiteId: 'a"b<c',
+        ),
+      );
+      expect(html, contains('data-website-id="a&quot;b&lt;c"'));
+    });
+
+    test('the external tag adds no inline-script hash', () {
+      expect(
+        inlineScriptHashes(shell(ShellLocale.en, shellConfig: withId)),
+        inlineScriptHashes(shell(ShellLocale.en)),
+      );
+    });
+
+    test('fromSiteConfig carries the configured id', () {
+      expect(
+        ShellConfig.fromSiteConfig().umamiWebsiteId,
+        SiteConfig.umamiWebsiteId,
+      );
+    });
   });
 
   test('locales: EN at /, PT at /pt', () {
@@ -126,7 +189,18 @@ void main() {
         html,
         contains(
           '<meta property="og:image" '
-          'content="https://lschmidt.tech/og-image.png">',
+          'content="${config.origin}/og-image.png">',
+        ),
+      );
+      expect(html, contains('<meta property="og:image:width" content="1200">'));
+      expect(html, contains('<meta property="og:image:height" content="630">'));
+      final alt = escapeHtml(arb['metaImageAlt']! as String);
+      expect(html, contains('<meta property="og:image:alt" content="$alt">'));
+      expect(html, contains('<meta name="twitter:image:alt" content="$alt">'));
+      expect(
+        html,
+        contains(
+          '<meta name="twitter:image" content="${config.origin}/og-image.png">',
         ),
       );
       expect(
@@ -255,6 +329,7 @@ void main() {
       for (final key in [
         'metaTitle',
         'metaDescription',
+        'metaImageAlt',
         'fallbackTitle',
         'fallbackBody',
       ]) {

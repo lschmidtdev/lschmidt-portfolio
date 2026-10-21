@@ -20,6 +20,7 @@ dependencies:
   go_router: ^17.5.0
   url_launcher: ^6.3.3
   web: ^1.1.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -33,3 +34,18 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/content/
+  fonts:
+    - family: Inter Tight
+      fonts:
+        - asset: assets/fonts/InterTight-Regular.ttf
+        - asset: assets/fonts/InterTight-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/InterTight-SemiBold.ttf
+          weight: 600
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/JetBrainsMono-Medium.ttf
+          weight: 500
