@@ -18,6 +18,18 @@ void main() {
     expect(redirectFor(''), '/');
   });
 
+  test('page urls keep the locale path and carry the section as fragment', () {
+    expect(pageUri(AppLocale.en).toString(), '/');
+    expect(pageUri(AppLocale.pt).toString(), '/pt');
+    expect(pageUri(AppLocale.en, section: 'work').toString(), '/#work');
+    expect(pageUri(AppLocale.pt, section: 'contact').toString(), '/pt#contact');
+    for (final locale in AppLocale.values) {
+      final uri = pageUri(locale, section: 'skills');
+      expect(redirectFor(uri.path), isNull);
+      expect(localeForPath(uri.path), locale);
+    }
+  });
+
   testWidgets('/ is English and /pt is Portuguese', (tester) async {
     await tester.pumpWidget(
       App(initialLocation: '/', repository: FakePortfolioRepository()),

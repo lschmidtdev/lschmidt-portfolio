@@ -10,3 +10,6 @@ AppLocale localeForPath(String path) =>
     (redirectFor(path) ?? path) == AppLocale.pt.path
     ? AppLocale.pt
     : AppLocale.en;
+
+Uri pageUri(AppLocale locale, {String? section}) =>
+    Uri(path: locale.path, fragment: section);

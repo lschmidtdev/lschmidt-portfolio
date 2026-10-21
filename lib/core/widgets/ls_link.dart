@@ -43,6 +43,7 @@ class LsLink extends StatelessWidget {
     return MergeSemantics(
       child: Semantics(
         link: true,
+        linkUrl: href,
         label: label,
         enabled: onTap != null,
         child: LsInteractive(
