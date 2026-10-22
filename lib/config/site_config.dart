@@ -9,9 +9,9 @@ abstract final class SiteConfig {
 
   static const name = 'Lucas Schmidt';
 
-  static const cvAvailable = false;
+  static const cvAvailable = true;
 
-  static const cvUpdated = '2026-10-19';
+  static const cvUpdated = '2026-10-21';
 
   static const web3formsKey = '1339392d-1dd4-4b11-9b49-258fdfad057f';
 
