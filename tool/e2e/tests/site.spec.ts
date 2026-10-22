@@ -14,6 +14,8 @@ const locales = [
     email: 'Email me',
     summary: /^Building production Flutter apps since 2020/,
     themeToggle: 'Switch to light theme',
+    cvPath: '/cv/lucas-schmidt-cv-en.pdf',
+    cvLinkName: /Download CV/,
   },
   {
     path: '/pt',
@@ -22,13 +24,15 @@ const locales = [
     email: 'Fale comigo',
     summary: /^Construo apps Flutter em produção desde 2020/,
     themeToggle: 'Mudar para o tema claro',
+    cvPath: '/cv/lucas-schmidt-cv-pt.pdf',
+    cvLinkName: /Baixar CV/,
   },
 ];
 
 const themes = ['dark', 'light'] as const;
 
 for (const { name, width, height } of viewports) {
-  for (const { path, lang, role, email, summary, themeToggle } of locales) {
+  for (const { path, lang, role, email, summary, themeToggle, cvPath, cvLinkName } of locales) {
     for (const theme of themes) {
       test.describe(`${path} at ${name} in ${theme}`, () => {
         test.use({ viewport: { width, height } });
@@ -73,21 +77,27 @@ for (const { name, width, height } of viewports) {
           expect(requested).not.toContain('/main.dart.js');
         });
 
-        test('shows no CV link or button and requests no CV file', async ({ page }) => {
-          const cvRequests: string[] = [];
-          page.on('request', (r) => {
-            if (new URL(r.url()).pathname.startsWith('/cv/')) cvRequests.push(r.url());
-          });
+        test('links the CV for the locale and serves it as a PDF', async ({ page }) => {
           await boot(page, path);
           await expect(
             page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' }),
           ).toBeVisible();
-
-          await expect(page.getByRole('link', { name: /\bCV\b/ })).toHaveCount(0);
-          await expect(page.getByRole('button', { name: /\bCV\b/ })).toHaveCount(0);
-          await expect(page.locator('a[href*="/cv/"], a[href$=".pdf"]')).toHaveCount(0);
           await nextFrames(page, 10);
-          expect(cvRequests).toEqual([]);
+
+          const link = page.getByRole('link', { name: cvLinkName }).first();
+          await expect(link).toBeVisible();
+          await expect(link).toHaveAttribute('href', cvPath);
+          await expect(page.locator('a[href*="/cv/"]')).not.toHaveCount(0);
+          for (const href of await page.locator('a[href*="/cv/"]').evaluateAll((as) =>
+            as.map((a) => a.getAttribute('href')),
+          )) {
+            expect(href).toBe(cvPath);
+          }
+
+          const response = await page.request.get(cvPath);
+          expect(response.status()).toBe(200);
+          expect(response.headers()['content-type']).toContain('application/pdf');
+          expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
         });
       });
     }

@@ -275,10 +275,16 @@ void main() {
   test('verify runs the content guard after analyze and before the build', () {
     final job = _job('_verify.yml', 'build');
     final analyze = _stepIndex(job, (s) => s['name'] == 'Analyze');
+    final poppler = _stepIndex(
+      job,
+      (s) => '${s['run']}'.contains('poppler-utils'),
+    );
     final guard = _stepIndex(job, (s) => s['name'] == 'Content guard');
     final build = _stepIndex(job, (s) => s['name'] == 'Build web (wasm)');
     expect(guard, isNonNegative);
-    expect(guard, analyze + 1);
+    expect(poppler, analyze + 1);
+    expect(guard, poppler + 1);
+    expect(poppler, lessThan(_stepIndex(job, (s) => s['name'] == 'Test')));
     expect(guard, lessThan(build));
     expect(_steps(job)[guard]['run'], 'dart run tool/ci/content_guard.dart');
   });

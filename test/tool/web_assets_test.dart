@@ -57,8 +57,21 @@ void main() {
       expect(size.width, size.height);
     });
 
-    test('no CV file is shipped', () {
-      expect(Directory('web/cv').existsSync(), isFalse);
+    test('ships exactly the two web edition CVs', () {
+      final names = Directory(
+        'web/cv',
+      ).listSync().map((e) => e.uri.pathSegments.last).toList()..sort();
+      expect(names, ['lucas-schmidt-cv-en.pdf', 'lucas-schmidt-cv-pt.pdf']);
+    });
+
+    test('each CV is a PDF of the expected kind', () {
+      for (final locale in ['en', 'pt']) {
+        final bytes = File(
+          'web/cv/lucas-schmidt-cv-$locale.pdf',
+        ).readAsBytesSync();
+        expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+        expect(bytes.length, lessThan(1024 * 1024));
+      }
     });
   });
 }

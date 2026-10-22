@@ -14,6 +14,7 @@ git ls-files -z --cached --others --exclude-standard |
     "ghcr.io/cirruslabs/flutter:$version" bash -c '
       set -e
       mkdir /w && cd /w && tar x
+      apt-get update -qq >/dev/null && apt-get install -y -qq poppler-utils >/dev/null
       flutter pub get >/dev/null
       flutter test --update-goldens >&2
       find . -path "*/goldens/ci/*.png" | tar c -T -

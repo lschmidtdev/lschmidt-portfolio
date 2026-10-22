@@ -28,8 +28,10 @@ import 'package:lschmidt_portfolio/presentation/sections/skills_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/work_section.dart';
 import 'package:lschmidt_portfolio/presentation/sections/results_strip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'helpers/fake_portfolio_repository.dart';
+import 'helpers/pushed_routes.dart';
 import 'helpers/recording_analytics.dart';
 
 ScrollableState _pageScrollable(WidgetTester tester) =>
@@ -272,6 +274,118 @@ void main() {
     );
     expect(name.top, greaterThanOrEqualTo(0));
     expect(name.bottom, lessThanOrEqualTo(600));
+  });
+
+  for (final (path, contact) in [('/', 'CONTACT'), ('/pt', 'CONTATO')]) {
+    testWidgets('on $path a click on Contact scrolls and keeps the url', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        App(initialLocation: path, repository: FakePortfolioRepository()),
+      );
+      await tester.pumpAndSettle();
+      final updates = recordRouteUpdates(tester);
+      final page = tester.element(find.byType(Scaffold));
+      final locale = page.read<LocaleCubit>().state;
+
+      await tester.tap(find.text(contact).first);
+      await settlePushedRoutes(tester);
+
+      final scrolled = _pageScrollable(tester).position.pixels;
+      expect(scrolled, greaterThan(0));
+      expect(updates, isEmpty);
+      expect(
+        GoRouter.of(page).routeInformationProvider.value.uri.toString(),
+        path,
+      );
+      expect(page.read<LocaleCubit>().state, locale);
+      expect(
+        FocusManager.instance.primaryFocus,
+        SectionId.contact.focusIn(tester.element(find.byType(SiteHeader))),
+      );
+      await tester.pumpAndSettle();
+      expect(_pageScrollable(tester).position.pixels, scrolled);
+    });
+  }
+
+  for (final (location, section, locale) in [
+    ('/#contact', SectionId.contact, AppLocale.en),
+    ('/pt#skills', SectionId.skills, AppLocale.pt),
+  ]) {
+    testWidgets('opening $location starts at its section without focus', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        App(initialLocation: location, repository: FakePortfolioRepository()),
+      );
+      await tester.pumpAndSettle();
+
+      final page = tester.element(find.byType(SiteHeader));
+      expect(page.read<LocaleCubit>().state, locale);
+      expect(_pageScrollable(tester).position.pixels, greaterThan(0));
+      final top = tester.getTopLeft(find.byKey(section.keyIn(page))).dy;
+      expect(top, inInclusiveRange(-30, 1));
+      expect(section.focusIn(page).hasFocus, isFalse);
+      expect(section.fieldIn(page).hasFocus, isFalse);
+    });
+  }
+
+  testWidgets('opening an unknown fragment stays at the top', (tester) async {
+    await tester.pumpWidget(
+      App(initialLocation: '/#nope', repository: FakePortfolioRepository()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ContactSection), findsOneWidget);
+    expect(_pageScrollable(tester).position.pixels, 0);
+  });
+
+  testWidgets('opening a section url with reduced motion jumps to it', (
+    tester,
+  ) async {
+    final reduced = ValueNotifier(true);
+    addTearDown(reduced.dispose);
+    await tester.pumpWidget(
+      App(
+        initialLocation: '/#contact',
+        repository: FakePortfolioRepository(),
+        reducedMotion: reduced,
+      ),
+    );
+    final samples = <double>[];
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      samples.add(_pageScrollable(tester).position.pixels);
+    }
+    await tester.pumpAndSettle();
+
+    final end = _pageScrollable(tester).position.pixels;
+    expect(end, greaterThan(0));
+    expect(samples.where((p) => p > 0).toSet(), {end});
+  });
+
+  testWidgets('the brand scrolls back to the top and keeps the url', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      App(initialLocation: '/pt', repository: FakePortfolioRepository()),
+    );
+    await tester.pumpAndSettle();
+    final updates = recordRouteUpdates(tester);
+    final page = tester.element(find.byType(Scaffold));
+    _pageScrollable(tester).position.jumpTo(30);
+    await tester.pump();
+
+    await tester.tap(find.text('Lucas Schmidt').first);
+    await settlePushedRoutes(tester);
+
+    expect(_pageScrollable(tester).position.pixels, 0);
+    expect(updates, isEmpty);
+    expect(
+      GoRouter.of(page).routeInformationProvider.value.uri.toString(),
+      '/pt',
+    );
+    expect(page.read<LocaleCubit>().state, AppLocale.pt);
   });
 
   testWidgets('Email me in the hero scrolls to the contact section', (

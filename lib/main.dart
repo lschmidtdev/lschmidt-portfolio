@@ -4,7 +4,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:lschmidt_portfolio/app.dart';
 
 void main() {
-  usePathUrlStrategy();
+  setUrlStrategy(PathUrlStrategy(BrowserPlatformLocation(), true));
   WidgetsFlutterBinding.ensureInitialized();
   SemanticsBinding.instance.ensureSemantics();
   runApp(const App());

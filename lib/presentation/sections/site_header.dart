@@ -4,11 +4,14 @@ import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/design/ls_motion.dart';
 import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
 import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
+import 'package:lschmidt_portfolio/core/widgets/link_activation.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_interactive.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_link.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
 import 'package:lschmidt_portfolio/l10n/app_localizations.dart';
+import 'package:lschmidt_portfolio/routes.dart';
+import 'package:url_launcher/link.dart';
 
 class SiteHeader extends StatelessWidget {
   const SiteHeader({
@@ -63,29 +66,27 @@ class SiteHeader extends StatelessWidget {
                   spacing: LsSpacing.s4,
                   runSpacing: LsSpacing.s2,
                   children: [
-                    _Brand(onPressed: () => _scrollToTop(context)),
+                    _Brand(
+                      href: pageUri(locale),
+                      onActivated: () => _scrollToTop(context),
+                    ),
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 28,
                       runSpacing: LsSpacing.s2,
                       children: [
-                        LsLink(
-                          label: l10n.navWork,
-                          onPressed: () => SectionId.work.scrollTo(context),
-                        ),
-                        LsLink(
-                          label: l10n.navExperience,
-                          onPressed: () =>
-                              SectionId.experience.scrollTo(context),
-                        ),
-                        LsLink(
-                          label: l10n.navSkills,
-                          onPressed: () => SectionId.skills.scrollTo(context),
-                        ),
-                        LsLink(
-                          label: l10n.navContact,
-                          onPressed: () => SectionId.contact.scrollTo(context),
-                        ),
+                        for (final (id, label) in [
+                          (SectionId.work, l10n.navWork),
+                          (SectionId.experience, l10n.navExperience),
+                          (SectionId.skills, l10n.navSkills),
+                          (SectionId.contact, l10n.navContact),
+                        ])
+                          LsLink(
+                            label: label,
+                            href: pageUri(locale, section: id.name),
+                            onActivated: () => id.scrollTo(context),
+                            inPage: true,
+                          ),
                         _LanguageSwitch(
                           selected: locale,
                           onSelected: onLocaleSelected,
@@ -105,16 +106,24 @@ class SiteHeader extends StatelessWidget {
 }
 
 class _Brand extends StatelessWidget {
-  const _Brand({required this.onPressed});
+  const _Brand({required this.href, required this.onActivated});
 
-  final VoidCallback onPressed;
+  final Uri href;
+  final VoidCallback onActivated;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Link(
+    uri: href,
+    builder: (context, followLink) =>
+        _brand(context, inPageActivation(followLink, onActivated, href)),
+  );
+
+  Widget _brand(BuildContext context, VoidCallback? onPressed) {
     final colors = LsColors.of(context);
     return MergeSemantics(
       child: Semantics(
         link: true,
+        linkUrl: href,
         child: LsInteractive(
           onPressed: onPressed,
           builder: (context, hovered, focused) => LsFocusRing(

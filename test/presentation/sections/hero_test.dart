@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lschmidt_portfolio/config/site_config.dart';
 import 'package:lschmidt_portfolio/core/design/ls_colors.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
@@ -92,10 +93,19 @@ void main() {
 
   group('CV button', () {
     testWidgets('is absent while no CV is published', (tester) async {
-      await tester.pumpLs(_page(_hero(AppLocale.en)));
+      await tester.pumpLs(_page(_hero(AppLocale.en, cvAvailable: false)));
 
       expect(find.text('Download CV (PDF)'), findsNothing);
       expect(find.text('Email me'), findsOneWidget);
+    });
+
+    testWidgets('follows SiteConfig by default', (tester) async {
+      await tester.pumpLs(_page(_hero(AppLocale.en)));
+
+      expect(
+        find.text('Download CV (PDF)'),
+        SiteConfig.cvAvailable ? findsOneWidget : findsNothing,
+      );
     });
 
     testWidgets('links the English PDF on /', (tester) async {

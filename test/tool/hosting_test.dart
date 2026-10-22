@@ -29,6 +29,7 @@ void main() {
       expect(t['target'], 'site');
       expect(t['public'], 'build/web');
       expect(t['trailingSlash'], isFalse);
+      expect(t['ignore'], ['firebase.json', '**/.*']);
     },
   );
 
@@ -46,15 +47,41 @@ void main() {
     ]);
   });
 
-  test('security headers on **, indexable, CSP report-only in M1', () {
+  test('security headers on **, indexable, CSP enforced', () {
     final h = headers();
     expect(h['Cache-Control'], 'no-cache');
     expect(h['X-Content-Type-Options'], 'nosniff');
     expect(h['Referrer-Policy'], 'strict-origin-when-cross-origin');
-    expect(h, contains('Content-Security-Policy-Report-Only'));
-    expect(h, isNot(contains('Content-Security-Policy')));
+    expect(h, contains('Content-Security-Policy'));
+    expect(h, isNot(contains('Content-Security-Policy-Report-Only')));
     expect(h, isNot(contains('X-Robots-Tag')));
     expect(jsonEncode(firebase), isNot(contains('noindex')));
+  });
+
+  Map<String, List<String>> directives() => {
+    for (final parts in [
+      for (final d in headers()['Content-Security-Policy']!.split(';'))
+        d.trim().split(RegExp(r'\s+')),
+    ])
+      parts.first: parts.skip(1).toList(),
+  };
+
+  test('CSP allows the contact form and analytics providers', () {
+    final d = directives();
+    expect(d['script-src'], contains('https://cloud.umami.is'));
+    expect(
+      d['connect-src'],
+      containsAll(['https://api.web3forms.com', 'https://gateway.umami.is']),
+    );
+  });
+
+  test('CSP locks framing, plugins and native form posts', () {
+    final d = directives();
+    expect(d['frame-ancestors'], ["'none'"]);
+    expect(d['object-src'], ["'none'"]);
+    expect(d['form-action'], ["'none'"]);
+    expect(d['base-uri'], ["'self'"]);
+    expect(d['default-src'], ["'self'"]);
   });
 
   test('CSP keeps its sources (hashes are checked by build_shell_test)', () {
@@ -64,11 +91,96 @@ void main() {
         "style-src 'self' 'unsafe-inline'; "
         "connect-src 'self' https://www.gstatic.com/flutter-canvaskit/ https://fonts.gstatic.com/s/ https://api.web3forms.com https://gateway.umami.is; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'";
-    final value = headers()['Content-Security-Policy-Report-Only']!.replaceAll(
+    final value = headers()['Content-Security-Policy']!.replaceAll(
       RegExp(r" 'sha256-[A-Za-z0-9+/=]+'"),
       '',
     );
     expect(value, withoutHashes);
+  });
+
+  RegExp globToRegExp(String glob) {
+    final pattern = StringBuffer('^');
+    for (var i = 0; i < glob.length; i++) {
+      final c = glob[i];
+      if (glob.startsWith('**', i)) {
+        pattern.write('.*');
+        i++;
+      } else if (c == '*') {
+        pattern.write('[^/]*');
+      } else if (c == '?') {
+        pattern.write('[^/]');
+      } else if (c == '{' || (c == '@' && glob.startsWith('@(', i))) {
+        if (c == '@') i++;
+        pattern.write('(');
+      } else if (c == '}' || c == ')') {
+        pattern.write(')');
+      } else if (c == ',' || c == '|') {
+        pattern.write('|');
+      } else {
+        pattern.write(RegExp.escape(c));
+      }
+    }
+    return RegExp('${pattern.toString()}\$');
+  }
+
+  test('glob matching follows the hosting rules', () {
+    expect(globToRegExp('**').hasMatch('/flutter_service_worker.js'), isTrue);
+    expect(
+      globToRegExp('**/*.@(js|css)').hasMatch('/flutter_service_worker.js'),
+      isTrue,
+    );
+    expect(
+      globToRegExp('/*.{png,svg}').hasMatch('/flutter_service_worker.js'),
+      isFalse,
+    );
+    expect(globToRegExp('/assets/**').hasMatch('/main.dart.js'), isFalse);
+  });
+
+  test('every header rule that matches flutter_service_worker.js says '
+      'no-cache', () {
+    final matching = [
+      for (final rule
+          in (hosting.single['headers']! as List<Object?>)
+              .cast<Map<String, Object?>>())
+        if (rule['regex'] != null
+            ? RegExp(
+                rule['regex']! as String,
+              ).hasMatch('/flutter_service_worker.js')
+            : globToRegExp(
+                rule['source']! as String,
+              ).hasMatch('/flutter_service_worker.js'))
+          rule,
+    ];
+    expect(matching, isNotEmpty);
+    for (final rule in matching) {
+      for (final h
+          in (rule['headers']! as List<Object?>).cast<Map<String, Object?>>()) {
+        if (h['key'] == 'Cache-Control') {
+          expect(h['value'], 'no-cache', reason: '${rule['source']}');
+        }
+      }
+    }
+  });
+
+  test('the bootstrap registers no service worker and retires old ones', () {
+    final js = File('web/flutter_bootstrap.js').readAsStringSync();
+    expect(js, startsWith('{{flutter_js}}\n{{flutter_build_config}}\n'));
+    expect(js, isNot(contains('serviceWorkerSettings')));
+    expect(js, isNot(contains('flutter_service_worker_version')));
+    expect(js, isNot(contains('.register(')));
+    expect(js, contains('_flutter.loader.load()'));
+    expect(js, contains('getRegistrations()'));
+    expect(js, contains('.unregister()'));
+    expect(js, contains('caches.delete('));
+    expect(js, contains('location.reload()'));
+  });
+
+  test('the bootstrap swallows blocked service workers and caches', () {
+    final js = File('web/flutter_bootstrap.js').readAsStringSync();
+    final recovered = RegExp(
+      r'\}\)\.catch\(function \(\) \{ return \[\]; \}\)',
+    ).allMatches(js);
+    expect(recovered, hasLength(2));
   });
 
   test('.firebaserc maps the default project and the site target', () {

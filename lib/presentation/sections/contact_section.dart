@@ -6,6 +6,7 @@ import 'package:lschmidt_portfolio/core/design/ls_spacing.dart';
 import 'package:lschmidt_portfolio/core/design/ls_typography.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_button.dart';
 import 'package:lschmidt_portfolio/core/widgets/ls_link.dart';
+import 'package:lschmidt_portfolio/core/widgets/motion_aware_reveal.dart';
 import 'package:lschmidt_portfolio/core/widgets/reveal_on_scroll.dart';
 import 'package:lschmidt_portfolio/core/widgets/section_shell.dart';
 import 'package:lschmidt_portfolio/domain/entities/app_locale.dart';
@@ -388,104 +389,106 @@ class _FieldsState extends State<_Fields> {
     return Semantics(
       container: true,
       label: l10n.contactFormLabel,
-      child: Form(
-        key: _formKey,
-        autovalidateMode: autovalidate,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _name,
-              focusNode: SectionId.contact.fieldIn(context),
-              style: inputStyle,
-              decoration: _decoration(context, l10n.contactNameLabel),
-              autofillHints: const [AutofillHints.name],
-              textInputAction: TextInputAction.next,
-              validator: (v) => _errorText(l10n, ValidateContact.name(v)),
-            ),
-            const SizedBox(height: ContactSection.fieldGap),
-            TextFormField(
-              controller: _email,
-              style: inputStyle,
-              decoration: _decoration(context, l10n.contactEmailLabel),
-              autofillHints: const [AutofillHints.email],
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              validator: (v) => _errorText(l10n, ValidateContact.email(v)),
-            ),
-            const SizedBox(height: ContactSection.fieldGap),
-            TextFormField(
-              controller: _company,
-              style: inputStyle,
-              decoration: _decoration(context, l10n.contactCompanyLabel),
-              autofillHints: const [AutofillHints.organizationName],
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: ContactSection.fieldGap),
-            TextFormField(
-              controller: _message,
-              style: inputStyle,
-              decoration: _decoration(context, l10n.contactMessageLabel),
-              keyboardType: TextInputType.multiline,
-              minLines: 5,
-              maxLines: 10,
-              validator: (v) => _errorText(l10n, ValidateContact.message(v)),
-            ),
-            ExcludeSemantics(
-              child: ExcludeFocus(
-                child: Offstage(
-                  child: TextField(
-                    key: ContactSection.honeypotKey,
-                    controller: _honeypot,
+      child: MotionAwareReveal(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: autovalidate,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _name,
+                focusNode: SectionId.contact.fieldIn(context),
+                style: inputStyle,
+                decoration: _decoration(context, l10n.contactNameLabel),
+                autofillHints: const [AutofillHints.name],
+                textInputAction: TextInputAction.next,
+                validator: (v) => _errorText(l10n, ValidateContact.name(v)),
+              ),
+              const SizedBox(height: ContactSection.fieldGap),
+              TextFormField(
+                controller: _email,
+                style: inputStyle,
+                decoration: _decoration(context, l10n.contactEmailLabel),
+                autofillHints: const [AutofillHints.email],
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                validator: (v) => _errorText(l10n, ValidateContact.email(v)),
+              ),
+              const SizedBox(height: ContactSection.fieldGap),
+              TextFormField(
+                controller: _company,
+                style: inputStyle,
+                decoration: _decoration(context, l10n.contactCompanyLabel),
+                autofillHints: const [AutofillHints.organizationName],
+                textInputAction: TextInputAction.next,
+              ),
+              const SizedBox(height: ContactSection.fieldGap),
+              TextFormField(
+                controller: _message,
+                style: inputStyle,
+                decoration: _decoration(context, l10n.contactMessageLabel),
+                keyboardType: TextInputType.multiline,
+                minLines: 5,
+                maxLines: 10,
+                validator: (v) => _errorText(l10n, ValidateContact.message(v)),
+              ),
+              ExcludeSemantics(
+                child: ExcludeFocus(
+                  child: Offstage(
+                    child: TextField(
+                      key: ContactSection.honeypotKey,
+                      controller: _honeypot,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: ContactSection.fieldGap),
-            if (sending || failed) ...[
-              Semantics(
-                liveRegion: true,
-                container: true,
-                child: Text(
-                  sending ? l10n.contactSending : l10n.contactFailedMessage,
-                  style: LsType.bodySm.copyWith(color: colors.fg2),
-                ),
-              ),
-              if (state is ContactFailed)
-                LsLink(
-                  label: l10n.contactFailedMailto,
-                  href: ContactSection.mailtoWithMessage(
-                    l10n.contactMailSubject,
-                    state.message,
+              const SizedBox(height: ContactSection.fieldGap),
+              if (sending || failed) ...[
+                Semantics(
+                  liveRegion: true,
+                  container: true,
+                  child: Text(
+                    sending ? l10n.contactSending : l10n.contactFailedMessage,
+                    style: LsType.bodySm.copyWith(color: colors.fg2),
                   ),
-                  onActivated: trackEmailApp,
                 ),
-              const SizedBox(height: LsSpacing.s3),
-            ],
-            Align(
-              alignment: Alignment.centerLeft,
-              child: LsButton.primary(
-                label: l10n.contactSend,
-                onPressed: sending ? null : _submit,
-              ),
-            ),
-            const SizedBox(height: LsSpacing.s4),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: LsSpacing.s2,
-              children: [
-                Text(
-                  l10n.contactEmailAppPrompt,
-                  style: LsType.bodySm.copyWith(color: colors.fg2),
-                ),
-                LsLink(
-                  label: l10n.contactEmailAppAction,
-                  href: mailto,
-                  onActivated: trackEmailApp,
-                ),
+                if (state is ContactFailed)
+                  LsLink(
+                    label: l10n.contactFailedMailto,
+                    href: ContactSection.mailtoWithMessage(
+                      l10n.contactMailSubject,
+                      state.message,
+                    ),
+                    onActivated: trackEmailApp,
+                  ),
+                const SizedBox(height: LsSpacing.s3),
               ],
-            ),
-          ],
+              Align(
+                alignment: Alignment.centerLeft,
+                child: LsButton.primary(
+                  label: l10n.contactSend,
+                  onPressed: sending ? null : _submit,
+                ),
+              ),
+              const SizedBox(height: LsSpacing.s4),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: LsSpacing.s2,
+                children: [
+                  Text(
+                    l10n.contactEmailAppPrompt,
+                    style: LsType.bodySm.copyWith(color: colors.fg2),
+                  ),
+                  LsLink(
+                    label: l10n.contactEmailAppAction,
+                    href: mailto,
+                    onActivated: trackEmailApp,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
