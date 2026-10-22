@@ -86,10 +86,12 @@ jobs:
           case "$DEPLOY_CHANNEL" in
             live) tool/e2e/node_modules/.bin/firebase deploy --only hosting:site --project "$FIREBASE_PROJECT" --non-interactive --message "$GITHUB_SHA"
                   url="$SITE_URL"
-                  expect=--expect-indexable ;;
+                  expect=--expect-indexable
+                  www=--expect-www-redirect ;;
             next) tool/e2e/node_modules/.bin/firebase hosting:channel:deploy next --only site --project "$FIREBASE_PROJECT" --expires 30d --json > deploy.json
                   url=$(jq -r '.result | to_entries[0].value.url' deploy.json)
-                  expect=--expect-noindex ;;
+                  expect=--expect-noindex
+                  www= ;;
             *) echo "::error::DEPLOY_CHANNEL must be next or live (got '$DEPLOY_CHANNEL')"; exit 1 ;;
           esac
-          "$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" "$expect"
+          "$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" "$expect" ${www:+"$www"}
