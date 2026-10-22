@@ -55,4 +55,19 @@ void main() {
       expect(findViolations(text), isEmpty);
     });
   }
+
+  test('the summaries name the real Philips job title', () {
+    final en = readJson('en') as Map<String, dynamic>;
+    final pt = readJson('pt') as Map<String, dynamic>;
+    final enSummary = (en['profile'] as Map)['summary'] as String;
+    final ptSummary = (pt['profile'] as Map)['summary'] as String;
+    expect(
+      enSummary,
+      contains('and a software engineer on hospital systems at Philips'),
+    );
+    expect(
+      ptSummary,
+      contains('e engenheiro de software em sistemas hospitalares na Philips'),
+    );
+  });
 }
