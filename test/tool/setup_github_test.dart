@@ -38,7 +38,7 @@ void main() {
     expect(r.exitCode, 0, reason: '${r.stderr}');
     expect(r.stdout, contains('secret scanning: enabled'));
     expect(r.stdout, contains('push protection: enabled'));
-    expect(r.stdout, contains('DEPLOY_CHANNEL=next'));
+    expect(r.stdout, contains('DEPLOY_CHANNEL=live'));
     expect(r.stdout, contains('ruleset main: as expected'));
   }, skip: noBash);
 
@@ -54,8 +54,8 @@ void main() {
     expect(r.stderr, contains('secret scanning'));
   }, skip: noBash);
 
-  test('fails when DEPLOY_CHANNEL is not next', () async {
-    final r = await setupGithub({'FAKE_DEPLOY_CHANNEL': 'live'});
+  test('fails when DEPLOY_CHANNEL is not live', () async {
+    final r = await setupGithub({'FAKE_DEPLOY_CHANNEL': 'next'});
     expect(r.exitCode, 1);
     expect(r.stderr, contains('DEPLOY_CHANNEL'));
   }, skip: noBash);
