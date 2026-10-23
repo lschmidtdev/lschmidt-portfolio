@@ -112,9 +112,10 @@ void main() {
       await tester.pumpLs(_page(_hero(AppLocale.en, cvAvailable: true)));
 
       expect(
-        _button(tester, 'Download CV (PDF)').href.toString(),
-        '/cv/lucas-schmidt-cv-en.pdf',
+        _button(tester, 'Download CV (PDF)').href,
+        Uri.base.resolve('/cv/lucas-schmidt-cv-en.pdf'),
       );
+      expect(_button(tester, 'Download CV (PDF)').href!.hasScheme, isTrue);
     });
 
     testWidgets('links the Portuguese PDF on /pt', (tester) async {
@@ -124,9 +125,10 @@ void main() {
       );
 
       expect(
-        _button(tester, 'Baixar CV (PDF)').href.toString(),
-        '/cv/lucas-schmidt-cv-pt.pdf',
+        _button(tester, 'Baixar CV (PDF)').href,
+        Uri.base.resolve('/cv/lucas-schmidt-cv-pt.pdf'),
       );
+      expect(_button(tester, 'Baixar CV (PDF)').href!.hasScheme, isTrue);
     });
 
     testWidgets('is a link for assistive technology', (tester) async {

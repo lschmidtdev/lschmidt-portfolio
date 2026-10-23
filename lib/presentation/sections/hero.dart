@@ -35,7 +35,7 @@ class HeroSection extends StatelessWidget {
   final bool cvAvailable;
 
   static Uri cvUri(AppLocale locale) =>
-      Uri.parse('/cv/lucas-schmidt-cv-${locale.name}.pdf');
+      Uri.base.resolve('/cv/lucas-schmidt-cv-${locale.name}.pdf');
 
   @override
   Widget build(BuildContext context) {
