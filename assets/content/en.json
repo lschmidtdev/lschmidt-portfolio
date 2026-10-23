@@ -14,8 +14,8 @@
   "metrics": [
     { "value": "100K+", "unit": null, "label": "Downloads on UsiSaúde, redesigned and migrated to BLoC" },
     { "value": "5 → 1", "unit": "min", "label": "Media upload time in a field-inspection app, native Kotlin" },
-    { "value": "571", "unit": null, "label": "Automated tests on zirkon.com.br: 557 Dart + 14 Playwright" },
-    { "value": "1", "unit": "week", "label": "To rebuild a hospital lab-analyzer integration at Philips" }
+    { "value": "6", "unit": "yrs", "label": "Shipping Flutter apps to production, since 2020" },
+    { "value": "~20", "unit": "screens", "label": "Redesigned on a shared component library for two healthcare apps" }
   ],
   "projects": [
     {
