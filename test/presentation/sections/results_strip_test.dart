@@ -39,7 +39,7 @@ void main() {
     await tester.pumpLs(_strip(AppLocale.en));
 
     expect(_value('5 → 1 min'), findsOne);
-    expect(_value('1 week'), findsOne);
+    expect(_value('~20 screens'), findsOne);
     final span = tester
         .widget<RichText>(_value('5 → 1 min'))
         .text
@@ -61,7 +61,7 @@ void main() {
     await tester.pumpLs(SingleChildScrollView(child: _strip(AppLocale.en)));
     expect(
       tester.getTopLeft(_value('100K+')).dy,
-      tester.getTopLeft(_value('571')).dy,
+      tester.getTopLeft(_value('6 yrs')).dy,
     );
 
     await tester.pumpLs(
@@ -70,7 +70,7 @@ void main() {
       height: 740,
     );
     expect(
-      tester.getTopLeft(_value('571')).dy,
+      tester.getTopLeft(_value('6 yrs')).dy,
       greaterThan(tester.getTopLeft(_value('100K+')).dy),
     );
   });
