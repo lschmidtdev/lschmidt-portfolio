@@ -86,18 +86,37 @@ for (const { name, width, height } of viewports) {
 
           const link = page.getByRole('link', { name: cvLinkName }).first();
           await expect(link).toBeVisible();
-          await expect(link).toHaveAttribute('href', cvPath);
+          const origin = new URL(page.url()).origin;
+          await expect(link).toHaveAttribute('href', origin + cvPath);
           await expect(page.locator('a[href*="/cv/"]')).not.toHaveCount(0);
           for (const href of await page.locator('a[href*="/cv/"]').evaluateAll((as) =>
             as.map((a) => a.getAttribute('href')),
           )) {
-            expect(href).toBe(cvPath);
+            expect(href).toBe(origin + cvPath);
           }
 
           const response = await page.request.get(cvPath);
           expect(response.status()).toBe(200);
           expect(response.headers()['content-type']).toContain('application/pdf');
           expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
+        });
+
+        test('opens the CV in a new tab and stays on the page', async ({ page }) => {
+          await boot(page, path);
+          await expect(
+            page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' }),
+          ).toBeVisible();
+          await nextFrames(page, 10);
+
+          const [popup, request] = await Promise.all([
+            page.waitForEvent('popup'),
+            page.context().waitForEvent('request', (r) => new URL(r.url()).pathname === cvPath),
+            page.getByRole('link', { name: cvLinkName }).first().click(),
+          ]);
+          expect(request.frame().page()).toBe(popup);
+          await nextFrames(page, 10);
+          expect(new URL(page.url()).pathname).toBe(path);
+          await expect(page.locator('html')).toHaveAttribute('lang', lang);
         });
       });
     }
