@@ -177,7 +177,9 @@ void main() {
       final run = deploy['run'] as String;
       expect(
         run,
-        contains(r'"$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" "$expect"'),
+        contains(
+          r'"$RUNNER_TEMP/smoke" "$url" "$GITHUB_SHA" "$expect" ${www:+"$www"}',
+        ),
       );
       expect(run.indexOf('esac'), lessThan(run.indexOf('smoke')));
     });
@@ -190,6 +192,9 @@ void main() {
       expect(live, isNot(contains('--expect-noindex')));
       expect(next, contains('expect=--expect-noindex'));
       expect(next, isNot(contains('--expect-indexable')));
+      expect(live, contains('www=--expect-www-redirect'));
+      expect(next, contains('www='));
+      expect(next, isNot(contains('--expect-www-redirect')));
       expect(
         RegExp('--expect-indexable').allMatches(run).length +
             RegExp('--expect-noindex').allMatches(run).length,

@@ -5,7 +5,7 @@ case "$1" in
   variable)
     if [[ $2 == get ]]; then
       case "$3" in
-        DEPLOY_CHANNEL) printf '%s\n' "${FAKE_DEPLOY_CHANNEL:-next}" ;;
+        DEPLOY_CHANNEL) printf '%s\n' "${FAKE_DEPLOY_CHANNEL:-live}" ;;
         *) echo "unexpected variable $3" >&2; exit 2 ;;
       esac
     fi ;;

@@ -56,7 +56,7 @@ set_var FIREBASE_PROJECT "$FIREBASE_PROJECT"
 set_var GCP_WIF_PROVIDER "$WIF_PROVIDER"
 set_var GCP_SERVICE_ACCOUNT "$SERVICE_ACCOUNT"
 set_var SITE_URL "$SITE_URL"
-set_var DEPLOY_CHANNEL next
+set_var DEPLOY_CHANNEL live
 
 echo "== ruleset"
 body=$(<"$here/github/ruleset-main.json")
@@ -79,8 +79,8 @@ protection=$("$gh" api "repos/$REPO" --jq '.security_and_analysis.secret_scannin
 echo "push protection: enabled"
 
 channel=$("$gh" variable get DEPLOY_CHANNEL --repo "$REPO")
-[[ $channel == next ]] || die "DEPLOY_CHANNEL is '$channel', expected next"
-echo "DEPLOY_CHANNEL=next"
+[[ $channel == live ]] || die "DEPLOY_CHANNEL is '$channel', expected live"
+echo "DEPLOY_CHANNEL=live"
 
 live_policies=$("$gh" api "repos/$REPO/environments/live/deployment-branch-policies" \
   --jq '.branch_policies[].name')
