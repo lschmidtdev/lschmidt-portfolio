@@ -34,18 +34,18 @@ export const test = base.extend<{
 }>({
   umamiGatewayAllowed: [false, { option: true }],
   outbound: [
-    async ({ page, umamiGatewayAllowed }, use) => {
+    async ({ context, umamiGatewayAllowed }, use) => {
       const outbound: Outbound = { umamiGateway: [], web3forms: [] };
-      page.on('request', (r) => {
+      context.on('request', (r) => {
         const host = new URL(r.url()).host;
         if (host === 'gateway.umami.is') outbound.umamiGateway.push(r.url());
         if (host === 'api.web3forms.com') outbound.web3forms.push(r.url());
       });
-      await page.route(umamiScript, (route) =>
+      await context.route(umamiScript, (route) =>
         route.fulfill({ contentType: 'text/javascript', body: '' }),
       );
-      await page.route(umamiGateway, (route) => route.abort());
-      await page.route(web3formsApi, (route) => route.abort());
+      await context.route(umamiGateway, (route) => route.abort());
+      await context.route(web3formsApi, (route) => route.abort());
       await use(outbound);
       if (!umamiGatewayAllowed) {
         expect(outbound.umamiGateway, 'requests to the Umami gateway').toEqual([]);

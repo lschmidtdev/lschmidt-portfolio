@@ -38,6 +38,22 @@ async function fillForm(page: Page): Promise<void> {
   await typeInto(page, 'Message', visitor.message);
 }
 
+async function send(page: Page): Promise<void> {
+  const button = page.getByRole('button', { name: 'Send message' });
+  await button.scrollIntoViewIfNeeded();
+  let last = '';
+  await expect
+    .poll(async () => {
+      await nextFrames(page);
+      const box = JSON.stringify(await button.boundingBox());
+      const settled = box === last;
+      last = box;
+      return settled;
+    })
+    .toBe(true);
+  await button.click();
+}
+
 async function openContact(page: Page): Promise<void> {
   await boot(page, '/');
   await expect(page.getByRole('heading', { level: 1, name: 'Lucas Schmidt' })).toBeVisible();
@@ -79,7 +95,7 @@ test.describe('contact form', () => {
     });
     await openContact(page);
     await fillForm(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
 
     await expect(page.getByRole('heading', { name: 'Message sent.' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Message' })).toHaveCount(0);
@@ -100,7 +116,7 @@ test.describe('contact form', () => {
 
   test('invalid input is rejected without any request', async ({ page, outbound }) => {
     await openContact(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
 
     await expect(form(page).getByText('Please enter your name.')).toBeVisible();
     expect(outbound.web3forms).toEqual([]);
@@ -117,7 +133,7 @@ test.describe('contact form server error', () => {
     await page.route(web3formsApi, fulfillWith(500, false));
     await openContact(page);
     await fillForm(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
 
     await expect(form(page).getByText(/Your message could not be sent/)).toBeVisible();
     const fallback = page.getByRole('link', { name: 'Email me directly' });
@@ -148,7 +164,7 @@ test.describe('contact form on a 360 px phone', () => {
     await page.route(web3formsApi, fulfillWith(200, true));
     await openContact(page);
     await fillForm(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
 
     const sent = page.getByRole('heading', { name: 'Message sent.' });
     await expectInsideViewport(page, sent);
@@ -159,7 +175,7 @@ test.describe('contact form on a 360 px phone', () => {
     await page.route(web3formsApi, fulfillWith(500, false));
     await openContact(page);
     await fillForm(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
 
     await expectInsideViewport(page, form(page).getByText(/Your message could not be sent/));
     await expectInsideViewport(page, page.getByRole('link', { name: 'Email me directly' }));
@@ -178,7 +194,7 @@ test.describe('analytics script blocked', () => {
     await page.route(web3formsApi, fulfillWith(200, true));
     await openContact(page);
     await fillForm(page);
-    await page.getByRole('button', { name: 'Send message' }).click();
+    await send(page);
     await expect(page.getByRole('heading', { name: 'Message sent.' })).toBeVisible();
   });
 });
