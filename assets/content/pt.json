@@ -118,7 +118,7 @@
       "current": false,
       "company": "Philips",
       "title": "Engenheiro de Software — sistema hospitalar Tasy",
-      "summary": "Módulos de radiologia e laboratório. Reconstruí a integração com um analisador laboratorial em um prazo de 1 semana e refatorei cerca de 20 telas propensas a travar, que passaram a rodar de 10 a 20 s mais rápido. De estagiário a júnior em 12 meses."
+      "summary": "Módulos de radiologia e laboratório. Reconstruí a integração com um analisador laboratorial em um prazo de 1 semana e refatorei cerca de 20 telas propensas a travar, que passaram a rodar de 10 a 20 s mais rápido. Virei referência do time em refatoração de código legado e escrevi o guia de clean code do time."
     }
   ],
   "skillGroups": [
