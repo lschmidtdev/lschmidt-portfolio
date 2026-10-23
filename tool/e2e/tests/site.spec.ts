@@ -84,7 +84,7 @@ for (const { name, width, height } of viewports) {
           ).toBeVisible();
           await nextFrames(page, 10);
 
-          const link = page.getByRole('link', { name: cvLinkName }).first();
+          const link = page.getByRole('link', { name: cvLinkName });
           await expect(link).toBeVisible();
           const origin = new URL(page.url()).origin;
           await expect(link).toHaveAttribute('href', origin + cvPath);
@@ -111,7 +111,7 @@ for (const { name, width, height } of viewports) {
           const [popup, request] = await Promise.all([
             page.waitForEvent('popup'),
             page.context().waitForEvent('request', (r) => new URL(r.url()).pathname === cvPath),
-            page.getByRole('link', { name: cvLinkName }).first().click(),
+            page.getByRole('link', { name: cvLinkName }).click(),
           ]);
           expect(request.frame().page()).toBe(popup);
           await nextFrames(page, 10);
